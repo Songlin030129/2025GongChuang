@@ -4,10 +4,10 @@
 #include "common_inc.h"
 #define P_MIN -12.5f
 #define P_MAX 12.5f
-#define V_MIN -45.0f
-#define V_MAX 45.0f
-#define T_MIN -18.0f
-#define T_MAX 18.0f
+#define V_MIN -50.0f
+#define V_MAX 50.0f
+#define T_MIN -5.0f
+#define T_MAX 5.0f
 #define KP_MIN 0.0f
 #define KP_MAX 500.0f
 #define KD_MIN 0.0f
@@ -32,6 +32,8 @@ public:
     void Disable();
     void SaveZeroPoint();
     void ClearErr();
+    void write_motor_data(uint8_t rid, uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3);
+    void save_motor_data(uint8_t rid);
 
     void Control(float _pos, float _vel, float _KP, float _KD, float _torq);
     void Control(float _vel, float _pos);

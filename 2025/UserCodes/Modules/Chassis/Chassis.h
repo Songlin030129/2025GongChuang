@@ -7,10 +7,8 @@
 #include "ops.h"
 #include "PID.h"
 #include "HWT101.h"
-#define WHEEL_DISTANCE_TO_CENTER 0.145f
-#define WHEEL_RADIUS 0.038
-#define MOTOR_VEL_RAMP 500
-#define FOLLOW_THRESHOLD 0.005
+#define WHEEL_DISTANCE_TO_CENTER 0.15f
+#define WHEEL_RADIUS 0.038f
 struct CarVel_s
 {
     float vx;

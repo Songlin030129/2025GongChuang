@@ -2,7 +2,6 @@
 #define PID_H
 
 #include "common_inc.h"
-#define _constrain(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
 
 /**
  *  PID controller class

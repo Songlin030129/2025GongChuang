@@ -25,8 +25,8 @@ void HMI::UartReceive_IDLE_DMA_Callback(UART_HandleTypeDef* huart, uint16_t Size
         {
             memcpy(&rxdata, RxBuffer, sizeof(data_packet_t));
             recvlist.push_back(rxdata);
-            printf("HMI Received type:%d, state:0x%x, udata1:%d, udata2:%d, fdata1:%f, fdata2:%f\r\n",
-                rxdata.command_type, rxdata.command_state, rxdata.u_data1, rxdata.u_data2, rxdata.f_data1, rxdata.f_data2);
+            // printf("type:%d, state:%d, udata1:%d, udata2:%d, fdata1:%f, fdata2:%f\r\n",
+            //     rxdata.command_type, rxdata.command_state, rxdata.u_data1, rxdata.u_data2, rxdata.f_data1, rxdata.f_data2);
         }
         HAL_UARTEx_ReceiveToIdle_DMA(huart, (uint8_t*)this->RxBuffer, HMI_RX_BUFFER_SIZE_MAX);
     }

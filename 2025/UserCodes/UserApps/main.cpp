@@ -4,11 +4,13 @@
 #include "Key_Task.h"
 #include "Command_Task.h"
 #include "LED_Task.h"
+#include "Gimbal_Task.h"
 static TaskHandle_t LED_Task_Handle;
 static TaskHandle_t KEY_Task_Handle;
 static TaskHandle_t DBG_Task_Handle;
 static TaskHandle_t Chassis_Task_Handle;
 static TaskHandle_t Command_Task_Handle;
+static TaskHandle_t Gimbal_Task_Handle;
 
 void LEDTask(void* argument)
 {
@@ -30,6 +32,11 @@ void CommandTask(void* arrgument)
 {
     Command_Task();
 }
+void GimbalTask(void* arrgument)
+{
+    Gimbal_Task();
+}
+
 // /*--------------------------主函数创建线程-------------------------*/
 void Main()
 {
@@ -63,5 +70,11 @@ void Main()
         printf("Command Task Create Success!\r\n");
     else
         printf("Command Task Create Fail\r\n");
+
+    xReturn = xTaskCreate(GimbalTask, "GimbalTask", 512, NULL, osPriorityNormal1, &Gimbal_Task_Handle);
+    if (xReturn == pdTRUE)
+        printf("Gimbal Task Create Success!\r\n");
+    else
+        printf("Gimbal Task Create Fail\r\n");
 
 }

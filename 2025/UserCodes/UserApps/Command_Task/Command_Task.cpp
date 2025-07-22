@@ -5,7 +5,7 @@
 #include "trapTraj.h"
 #include "LCD.h"
 #include "HMI.h"
-
+#include "Gimbal.h"
 #define COMMAND_TYPE_YUNTAI 1
 #define COMMAND_TYPE_HUAGUI 2
 #define COMMAND_TYPE_CHASSIS_PATH 3
@@ -28,7 +28,7 @@ uint32_t Last_Time;
 
 void Command_Task()
 {
-    // hmi.Init(&huart1);
+    hmi.Init(&huart1);
     // motion.Init();
     // LCD_Init();
     while (1)
@@ -143,8 +143,21 @@ void Command_Task()
                         }
                     }
                 }
+                else if (it->command_type == COMMAND_TYPE_CHASSIS_POSITION)
+                {
+                    hmi.recvlist.erase(it);
+                    if (it->f_data1 <= 9000.0f && it->f_data2 <= 9000.0f)
+                    {
+                        gimbal.camera_x_err = it->f_data1;
+                        gimbal.camera_y_err = it->f_data2;
+                    }
+                    else
+                    {
+                        gimbal.camera_x_err = 0.0f;
+                        gimbal.camera_y_err = 0.0f;
+                    }
+                }
             }
-
         }
 
         vTaskDelay(5);

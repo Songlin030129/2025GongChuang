@@ -1,6 +1,6 @@
 #include "DMMotor.h"
+#include "string.h"
 DMMotor dm_gimbal;
-
 void DMMotor::Init(CAN_HandleTypeDef* _hcan, uint8_t _Motor_ID, uint8_t _Master_ID, Control_Mode _Mode)
 {
     static uint8_t init_state = 0;
@@ -89,7 +89,25 @@ void DMMotor::Disable()
     CAN_Send_Data(Motor_ID + Mode, Data, 8);
 
 }
+void DMMotor::write_motor_data(uint8_t rid, uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3)
+{
+    uint8_t can_id_l = Motor_ID & 0x0F;
+    uint8_t can_id_h = (Motor_ID >> 4) & 0x0F;
 
+    uint8_t data[8] = { can_id_l, can_id_h, 0x55, rid, d0, d1, d2, d3 };
+    CAN_Send_Data(0x7FF, data, 8);
+
+}
+
+void DMMotor::save_motor_data(uint8_t rid)
+{
+    uint8_t can_id_l = Motor_ID & 0xFF;       // 低 8 位
+    uint8_t can_id_h = (Motor_ID >> 8) & 0x07; // 高 3 位
+
+    uint8_t data[4] = { can_id_l, can_id_h, 0xAA, 0x01 };
+    CAN_Send_Data(0x7FF, data, 4);
+
+}
 void DMMotor::SaveZeroPoint()
 {
     uint8_t Data[8];

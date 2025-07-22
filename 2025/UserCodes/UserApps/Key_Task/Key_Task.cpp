@@ -3,6 +3,7 @@
 #include "HMI.h"
 #include "Chassis.h"
 #include "Motion.h"
+#include "DMMotor.h"
 void Key_Task()
 {
     keys.AddKey(&key1, KEY1_GPIO_Port, KEY1_Pin);
@@ -19,9 +20,7 @@ void Key_Task()
 void KEY_KeyClickCallback(KEY* key)
 {
     if (key == &key1) {
-        hmi.Transmit(0, 1, 0, 0, 0, 0);
-        motion.Camera_Out();
-        motion.Yuntai_Out();
+        dm_gimbal.SaveZeroPoint();
     }
     if (key == &key2) {
         data_packet_t temp = { 0 };

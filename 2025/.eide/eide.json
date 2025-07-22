@@ -306,7 +306,9 @@
           "UserCodes/UserApps/Command_Task",
           "UserCodes/UserApps/Debug_Task",
           "UserCodes/UserApps/Key_Task",
-          "UserCodes/UserApps/LED_Task"
+          "UserCodes/UserApps/LED_Task",
+          "UserCodes/Modules/Gimbal",
+          "UserCodes/UserApps/Gimbal_Task"
         ],
         "libList": [],
         "defineList": [
