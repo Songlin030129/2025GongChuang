@@ -13,34 +13,34 @@
 
 #include "FSUS_Protocol.h"
 
+#define FSUS_K_ANGLE_REAL2RAW    1
+#define FSUS_B_ANGLE_REAL2RAW    0
+#define FSUS_SERVO_SPEED         100.0 // 舵机角度的默认转速
+#define FSUS_ANGLE_CTL_DEADBLOCK 1.5   // 舵机控制的死区
+#define FSUS_WAIT_TIMEOUT_MS     60000 // 等待的时间上限 ms
 
-#define FSUS_K_ANGLE_REAL2RAW 1
-#define FSUS_B_ANGLE_REAL2RAW 0
-#define FSUS_SERVO_SPEED 100.0 // 舵机角度的默认转速
-#define FSUS_ANGLE_CTL_DEADBLOCK 1.5 // 舵机控制的死区
-#define FSUS_WAIT_TIMEOUT_MS 60000 // 等待的时间上限 ms
-
-class FSUS_Servo {
+class FSUS_Servo
+{
 public:
-    FSUS_Protocol* protocol; // 舵机串口通信协议
-    FSUS_SERVO_ID_T servoId; //舵机ID
-    bool isOnline; //舵机是否在线
-    bool isMTurn; // 舵机是否是多圈模式
-    float kAngleReal2Raw; // 舵机标定数据-舵机角度与位置之间的比例系数
-    float bAngleReal2Raw; // 舵机标定数据-舵机角度与位置转换过程中的偏移量
+    FSUS_Protocol *protocol; // 舵机串口通信协议
+    FSUS_SERVO_ID_T servoId; // 舵机ID
+    bool isOnline;           // 舵机是否在线
+    bool isMTurn;            // 舵机是否是多圈模式
+    float kAngleReal2Raw;    // 舵机标定数据-舵机角度与位置之间的比例系数
+    float bAngleReal2Raw;    // 舵机标定数据-舵机角度与位置转换过程中的偏移量
 
-    FSUS_SERVO_ANGLE_T curAngle; // 真实的当前角度
+    FSUS_SERVO_ANGLE_T curAngle;    // 真实的当前角度
     FSUS_SERVO_ANGLE_T targetAngle; // 真实的目标角度
 
-    FSUS_SERVO_ANGLE_T curRawAngle;     // 当前的原始角度
-    FSUS_SERVO_ANGLE_T targetRawAngle;  // 目标原始角度
+    FSUS_SERVO_ANGLE_T curRawAngle;    // 当前的原始角度
+    FSUS_SERVO_ANGLE_T targetRawAngle; // 目标原始角度
 
-    FSUS_SERVO_ANGLE_T angleMin; //舵机角度的最小值
+    FSUS_SERVO_ANGLE_T angleMin; // 舵机角度的最小值
     FSUS_SERVO_ANGLE_T angleMax; // 舵机角度最大值
-    FSUS_SERVO_SPEED_T speed; // 舵机转速 单位dps °/s
+    FSUS_SERVO_SPEED_T speed;    // 舵机转速 单位dps °/s
 
-    void init(uint8_t servoId, FSUS_Protocol* protocol);
-    //舵机通讯检测
+    void init(uint8_t servoId, FSUS_Protocol *protocol);
+    // 舵机通讯检测
     bool ping();
     // 舵机标定
     void calibration(FSUS_SERVO_ANGLE_T rawA, FSUS_SERVO_ANGLE_T realA, FSUS_SERVO_ANGLE_T rawB, FSUS_SERVO_ANGLE_T realB);
@@ -112,12 +112,10 @@ public:
     // 舵机等待
     void wait();
     void SetOriginPoint();
+
 private:
+}; // NOTE：类的末尾要加;
 
-};// NOTE：类的末尾要加;
-
-extern FSUS_Servo servo_camera;
-extern FSUS_Servo servo_jiazhua;
-extern FSUS_Servo servo_zaiwu;
+extern FSUS_Servo servo_jaw;
 
 #endif
