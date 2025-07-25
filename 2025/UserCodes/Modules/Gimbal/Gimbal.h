@@ -58,21 +58,27 @@ public:
     static constexpr float ROTATE_FINISHED_THRESHOLD = 0.1f;
 
     // 夹爪角度常量
-    static constexpr float JAW_CLOSE_ANGLE        = -82;
-    static constexpr float JAW_OPEN_ANGLE         = -120;
+    static constexpr float JAW_ANGLE_CLOSE        = -82;
+    static constexpr float JAW_ANGLE_OPEN         = -120;
     static constexpr float JAW_INTERVAL           = 200;
     static constexpr float JAW_FINISHED_THRESHOLD = 7;
 
-    // 抬升角度常量
-    static constexpr float LIFT_TOP_ANGLE          = 0;
-    static constexpr float LIFT_GROUND_ANGLE       = 1460;
-    static constexpr float LIFT_ZHUANPAN_ANGLE     = 760;
-    static constexpr float LIFT_ZAIWU_PUT_ANGLE    = 200;
-    static constexpr float LIFT_ZAIWU_GET_ANGLE    = 330;
-    static constexpr float LIFT_SECOND_ANGLE       = 840;
+    // 抬升距离常量
+    static constexpr float LIFT_DISTANCE_TOP       = 0;
+    static constexpr float LIFT_DISTANCE_GROUND    = 1460;
+    static constexpr float LIFT_DISTANCE_ZHUANPAN  = 760;
+    static constexpr float LIFT_DISTANCE_ZAIWU_PUT = 200;
+    static constexpr float LIFT_DISTANCE_ZAIWU_GET = 330;
+    static constexpr float LIFT_DISTANCE_SECOND    = 840;
     static constexpr float LIFT_VELOCITY           = 1500;
     static constexpr float LIFT_ACC                = 2000;
     static constexpr float LIFT_FINISHED_THRESHOLD = 5;
+
+    // 伸缩角度常量
+    static constexpr float EXTENSION_DISTANCE_1         = 0;
+    static constexpr float EXTENSION_DISTANCE_2         = 0;
+    static constexpr float EXTENSION_DISTANCE_3         = 0;
+    static constexpr float EXTENSION_FINISHED_THRESHOLD = 5;
 };
 
 extern Gimbal gimbal;

@@ -14,7 +14,7 @@ void Gimbal::Init(CAN_HandleTypeDef *_hcan)
     dm_gimbal.Enable();
     vTaskDelay(1);
 
-    tar_gimbal_angle = GIMBAL_ANGLE_OUT_2;
+    tar_gimbal_angle = ROTATE_ANGLE_OUT_2;
 
     servo_protocol.Init(&huart5);
     servo_jaw.init(3, &servo_protocol);
@@ -91,14 +91,15 @@ uint8_t Gimbal::Lift_Finished()
 
 void Gimbal::Extension_Move(float _distance)
 {
-    if (fabs(tar_gimbal_distance - gimbal_distance) <= LIFT_FINISHED_THRESHOLD)
-        return 1;
-    else
-        return 0;
+    if (_distance >= 0.0f && _distance <= 0.2f)
+        tar_gimbal_distance = _distance;
 }
 uint8_t Gimbal::Extension_Finished()
 {
-    return 0;
+    if (fabs(tar_gimbal_distance - gimbal_distance) <= EXTENSION_FINISHED_THRESHOLD)
+        return 1;
+    else
+        return 0;
 }
 
 void Gimbal::Rotate_Move(float _angle)
