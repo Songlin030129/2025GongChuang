@@ -19,6 +19,7 @@ public:
      * @param Size 接收数据长度
      */
     void UartReceive_IDLE_DMA_Callback(UART_HandleTypeDef* huart, uint16_t Size);
+    void UART_ErrorCallback(UART_HandleTypeDef* huart);
 
     float Yaw;
     float Gyro;
@@ -29,6 +30,6 @@ public:
     UART_HandleTypeDef* huart;
 
 };
-extern HWT101 imu;
+// extern HWT101 imu;
 
 #endif

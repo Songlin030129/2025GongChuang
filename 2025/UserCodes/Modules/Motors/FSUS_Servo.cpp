@@ -7,18 +7,18 @@
  */
 #include "FSUS_Servo.h"
 
-FSUS_Servo servo_jiazhua;
+FSUS_Servo servo_jaw;
 
-void FSUS_Servo::init(uint8_t servoId, FSUS_Protocol *protocol)
+void FSUS_Servo::init(uint8_t servoId, FSUS_Protocol* protocol)
 {
-    this->servoId        = servoId;              // 设定舵机的ID号
-    this->protocol       = protocol;             // 舵机的通信协议
-    this->angleMin       = FSUS_SERVO_ANGLE_MIN; // 设置默认角度的最小值
-    this->angleMax       = FSUS_SERVO_ANGLE_MAX; // 设置默认角度的最大值
-    this->speed          = FSUS_SERVO_SPEED;     // 设置默认转速
+    this->servoId = servoId;              // 设定舵机的ID号
+    this->protocol = protocol;             // 舵机的通信协议
+    this->angleMin = FSUS_SERVO_ANGLE_MIN; // 设置默认角度的最小值
+    this->angleMax = FSUS_SERVO_ANGLE_MAX; // 设置默认角度的最大值
+    this->speed = FSUS_SERVO_SPEED;     // 设置默认转速
     this->kAngleReal2Raw = FSUS_K_ANGLE_REAL2RAW;
     this->bAngleReal2Raw = FSUS_B_ANGLE_REAL2RAW;
-    this->isMTurn        = false;
+    this->isMTurn = false;
     // ping一下舵机
     ping();
     if (this->isOnline) {
@@ -125,7 +125,7 @@ void FSUS_Servo::setAngle(FSUS_SERVO_ANGLE_T angle, FSUS_INTERVAL_T interval, FS
 /* 设置舵机的原始角度 */
 void FSUS_Servo::setRawAngle(FSUS_SERVO_ANGLE_T rawAngle, FSUS_INTERVAL_T interval, FSUS_POWER_T power)
 {
-    this->isMTurn        = false;
+    this->isMTurn = false;
     this->targetRawAngle = rawAngle;
     this->protocol->sendSetAngle(this->servoId, rawAngle, interval, power);
 }
@@ -133,14 +133,14 @@ void FSUS_Servo::setRawAngle(FSUS_SERVO_ANGLE_T rawAngle, FSUS_INTERVAL_T interv
 /* 设置舵机的原始角度 */
 void FSUS_Servo::setRawAngle(FSUS_SERVO_ANGLE_T rawAngle, FSUS_INTERVAL_T interval)
 {
-    this->isMTurn        = false;
+    this->isMTurn = false;
     this->targetRawAngle = rawAngle;
     this->protocol->sendSetAngle(this->servoId, rawAngle, interval, 0);
 }
 /* 设置舵机的原始角度 */
 void FSUS_Servo::setRawAngle(FSUS_SERVO_ANGLE_T rawAngle)
 {
-    this->isMTurn        = false;
+    this->isMTurn = false;
     this->targetRawAngle = rawAngle;
     this->protocol->sendSetAngle(this->servoId, rawAngle, 0, 0);
 }
@@ -148,7 +148,7 @@ void FSUS_Servo::setRawAngle(FSUS_SERVO_ANGLE_T rawAngle)
 // 设置舵机的原始角度(指定周期)
 void FSUS_Servo::setRawAngleByInterval(FSUS_SERVO_ANGLE_T rawAngle, FSUS_INTERVAL_T interval, FSUS_INTERVAL_T t_acc, FSUS_INTERVAL_T t_dec, FSUS_POWER_T power)
 {
-    this->isMTurn        = false;
+    this->isMTurn = false;
     this->targetRawAngle = rawAngle;
     this->protocol->sendSetAngleByInterval(this->servoId, rawAngle, interval, t_acc, t_dec, power);
 }
@@ -156,7 +156,7 @@ void FSUS_Servo::setRawAngleByInterval(FSUS_SERVO_ANGLE_T rawAngle, FSUS_INTERVA
 // 设定舵机的原始角度(指定转速)
 void FSUS_Servo::setRawAngleByVelocity(FSUS_SERVO_ANGLE_T rawAngle, FSUS_SERVO_SPEED_T velocity, FSUS_INTERVAL_T t_acc, FSUS_INTERVAL_T t_dec, FSUS_POWER_T power)
 {
-    this->isMTurn        = false;
+    this->isMTurn = false;
     this->targetRawAngle = rawAngle;
     this->protocol->sendSetAngleByVelocity(this->servoId, rawAngle, velocity, t_acc, t_dec, power);
 }
@@ -182,7 +182,7 @@ FSUS_SERVO_ANGLE_T FSUS_Servo::queryRawAngle()
 // 设定舵机的原始角度(多圈)
 void FSUS_Servo::setRawAngleMTurn(FSUS_SERVO_ANGLE_T rawAngle, FSUS_INTERVAL_T_MTURN interval, FSUS_POWER_T power)
 {
-    this->isMTurn        = true;
+    this->isMTurn = true;
     this->targetRawAngle = rawAngle;
     this->protocol->sendSetAngleMTurn(this->servoId, rawAngle, interval, power);
 }
@@ -190,7 +190,7 @@ void FSUS_Servo::setRawAngleMTurn(FSUS_SERVO_ANGLE_T rawAngle, FSUS_INTERVAL_T_M
 // 设定舵机的原始角度(多圈)
 void FSUS_Servo::setRawAngleMTurn(FSUS_SERVO_ANGLE_T rawAngle, FSUS_INTERVAL_T_MTURN interval)
 {
-    this->isMTurn        = true;
+    this->isMTurn = true;
     this->targetRawAngle = rawAngle;
     this->protocol->sendSetAngleMTurn(this->servoId, rawAngle, interval, 0);
 }
@@ -198,7 +198,7 @@ void FSUS_Servo::setRawAngleMTurn(FSUS_SERVO_ANGLE_T rawAngle, FSUS_INTERVAL_T_M
 // 设定舵机的原始角度(多圈)
 void FSUS_Servo::setRawAngleMTurn(FSUS_SERVO_ANGLE_T rawAngle)
 {
-    this->isMTurn        = true;
+    this->isMTurn = true;
     this->targetRawAngle = rawAngle;
     this->protocol->sendSetAngleMTurn(this->servoId, rawAngle, 0, 0);
 }
@@ -206,7 +206,7 @@ void FSUS_Servo::setRawAngleMTurn(FSUS_SERVO_ANGLE_T rawAngle)
 // 设定舵机的原始角度(多圈+指定周期)
 void FSUS_Servo::setRawAngleMTurnByInterval(FSUS_SERVO_ANGLE_T rawAngle, FSUS_INTERVAL_T_MTURN interval, FSUS_INTERVAL_T t_acc, FSUS_INTERVAL_T t_dec, FSUS_POWER_T power)
 {
-    this->isMTurn        = true;
+    this->isMTurn = true;
     this->targetRawAngle = rawAngle;
     this->protocol->sendSetAngleMTurnByInterval(this->servoId, rawAngle, interval, t_acc, t_dec, power);
 }
@@ -214,7 +214,7 @@ void FSUS_Servo::setRawAngleMTurnByInterval(FSUS_SERVO_ANGLE_T rawAngle, FSUS_IN
 // 设定舵机的原始角度(多圈+指定转速)
 void FSUS_Servo::setRawAngleMTurnByVelocity(FSUS_SERVO_ANGLE_T rawAngle, FSUS_SERVO_SPEED_T velocity, FSUS_INTERVAL_T t_acc, FSUS_INTERVAL_T t_dec, FSUS_POWER_T power)
 {
-    this->isMTurn        = true;
+    this->isMTurn = true;
     this->targetRawAngle = rawAngle;
     this->protocol->sendSetAngleMTurnByVelocity(this->servoId, rawAngle, velocity, t_acc, t_dec, power);
 }
@@ -243,9 +243,9 @@ uint16_t FSUS_Servo::queryVoltage()
     if (status == FSUS_STATUS_SUCCESS) {
         // 提取数据
         int16_t voltage;
-        uint8_t *valuePtr = (uint8_t *)&voltage;
-        valuePtr[0]       = content[0];
-        valuePtr[1]       = content[1];
+        uint8_t* valuePtr = (uint8_t*)&voltage;
+        valuePtr[0] = content[0];
+        valuePtr[1] = content[1];
         return voltage;
     }
     return 0;
@@ -265,9 +265,9 @@ uint16_t FSUS_Servo::queryCurrent()
     if (status == FSUS_STATUS_SUCCESS) {
         // 提取数据
         int16_t current;
-        uint8_t *valuePtr = (uint8_t *)&current;
-        valuePtr[0]       = content[0];
-        valuePtr[1]       = content[1];
+        uint8_t* valuePtr = (uint8_t*)&current;
+        valuePtr[0] = content[0];
+        valuePtr[1] = content[1];
         return current;
     }
     return 0;
@@ -287,9 +287,9 @@ uint16_t FSUS_Servo::queryPower()
     if (status == FSUS_STATUS_SUCCESS) {
         // 提取数据
         int16_t power;
-        uint8_t *valuePtr = (uint8_t *)&power;
-        valuePtr[0]       = content[0];
-        valuePtr[1]       = content[1];
+        uint8_t* valuePtr = (uint8_t*)&power;
+        valuePtr[0] = content[0];
+        valuePtr[1] = content[1];
         return power;
     }
     return 0;
@@ -309,9 +309,9 @@ uint16_t FSUS_Servo::queryTemperature()
     if (status == FSUS_STATUS_SUCCESS) {
         // 提取数据
         int16_t temprature;
-        uint8_t *valuePtr = (uint8_t *)&temprature;
-        valuePtr[0]       = content[0];
-        valuePtr[1]       = content[1];
+        uint8_t* valuePtr = (uint8_t*)&temprature;
+        valuePtr[0] = content[0];
+        valuePtr[1] = content[1];
         return temprature;
     }
     return 0;
@@ -353,7 +353,8 @@ void FSUS_Servo::setTorque(bool enable)
     if (enable) {
         queryAngle();             // 查询舵机角度
         setAngle(this->curAngle); // 设置角度为当前的角度
-    } else {
+    }
+    else {
         wheelStop(); //
     }
 }
@@ -363,7 +364,8 @@ bool FSUS_Servo::isStop()
 {
     if (this->isMTurn) {
         queryRawAngleMTurn(); // 查询原始角度(多圈)
-    } else {
+    }
+    else {
         queryRawAngle(); // 查询舵机角度
     }
 
@@ -390,7 +392,8 @@ void FSUS_Servo::wait()
                 // 等待超过1s
                 break;
             }
-        } else {
+        }
+        else {
             // 更新t_start
             t_start = HAL_GetTick();
             // 更新角度误差

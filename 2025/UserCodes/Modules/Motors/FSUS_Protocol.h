@@ -278,6 +278,7 @@ public:
     bool read(uint8_t* value);
 
     void UartReceive_IDLE_DMA_Callback(UART_HandleTypeDef* huart, uint16_t Size);
+    void UART_ErrorCallback(UART_HandleTypeDef* huart);
 
 
 

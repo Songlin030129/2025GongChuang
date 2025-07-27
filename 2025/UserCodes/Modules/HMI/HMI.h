@@ -10,8 +10,7 @@
 typedef struct
 {
     uint8_t header;
-    uint8_t command_type;
-    uint8_t command_state;
+    uint8_t type;
     uint8_t u_data1;
     uint8_t u_data2;
     float f_data1;
@@ -36,13 +35,25 @@ public:
      * @param Size 接收数据长度
      */
     void UartReceive_IDLE_DMA_Callback(UART_HandleTypeDef* huart, uint16_t Size);
+    void UART_ErrorCallback(UART_HandleTypeDef* huart);
 
-    void Transmit(uint8_t _command_type, uint8_t _command_state, uint8_t _u_data1, uint8_t _u_data2, float _f_data1, float _f_data2);
+    void Set_Detect_Mode(uint8_t _mode, uint8_t _color);
 
     std::list<data_packet_t> recvlist;
 
     data_packet_t rxdata, txdata;
 
+    //数据类型定义
+    static constexpr uint8_t DATA_TYPE_SET_DETECT_MODE = 1;
+    static constexpr uint8_t DATA_TYPE_QRCODE = 2;
+    static constexpr uint8_t DATA_TYPE_TARGET_ERR = 3;
+
+    //识别模式定义
+    static constexpr uint8_t DETECT_MODE_NONE = 0;
+    static constexpr uint8_t DETECT_MODE_QRCODE = 1;
+    static constexpr uint8_t DETECT_MODE_MATERIAL = 2;
+    static constexpr uint8_t DETECT_MODE_TARGET = 3;
+    static constexpr uint8_t DETECT_MODE_BLOCK = 4;
 private:
     uint8_t RxBuffer[HMI_RX_BUFFER_SIZE_MAX];
     UART_HandleTypeDef* huart;

@@ -14,4 +14,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef* huart, uint16_t Size)
 void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart)
 {
     ops.UART_ErrorCallback(huart);
+    debug.UART_ErrorCallback(huart);
+    servo_protocol.UART_ErrorCallback(huart);
+    hmi.UART_ErrorCallback(huart);
 }

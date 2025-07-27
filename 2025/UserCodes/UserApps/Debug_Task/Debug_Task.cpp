@@ -8,18 +8,25 @@ float tar_vel = 0;
 void Debug_Task()
 {
     debug.Init(&huart2);
-
+    // debug.Add_ValueCommander("A", &gimbal.tar_jaw_angle);
+    // debug.Add_ValueCommander("T", &gimbal.tar_rotate_angle);
     // debug.Add_ValueCommander("OP", &gimbal.PID_Omega.P);
     // debug.Add_ValueCommander("OI", &gimbal.PID_Omega.I);
     // debug.Add_ValueCommander("AP", &gimbal.PID_Angle.P);
     debug.Add_ValueCommander("PX", &gimbal.PID_CAM_X.P);
     debug.Add_ValueCommander("PY", &gimbal.PID_CAM_Y.P);
-
+    debug.Add_ValueCommander("DX", &gimbal.PID_CAM_X.D);
+    debug.Add_ValueCommander("DY", &gimbal.PID_CAM_Y.D);
+    // debug.Add_ValueCommander("T", &gimbal.tar_vel_x);
+    // debug.Add_ValueCommander("P", &gimbal.PID_CAM_Omega.P);
+    // debug.Add_ValueCommander("I", &gimbal.PID_CAM_Omega.I);
 
     while (1) {
         debug.Run_Debug();
-        printf("gimbal_theta:%f, x_err:%f, x_out:%f, y_err:%f, y_out:%f\r\n",
-            gimbal.gimbal_angle,
+        printf("angle:%f, distance:%f, PX:%f, PY:%f, DX:%f, DY:%f, x_err:%f, x_out:%f, y_err:%f, y_out:%f\r\n",
+            gimbal.rotate_angle, gimbal.extension_distance,
+            gimbal.PID_CAM_X.P, gimbal.PID_CAM_Y.P,
+            gimbal.PID_CAM_X.D, gimbal.PID_CAM_Y.D,
             gimbal.camera_x_err, gimbal.PID_CAM_X.output_value,
             gimbal.camera_y_err, gimbal.PID_CAM_Y.output_value);
         // printf(":%d, tar_vel:%f, vel:%f, angle:%f, P:%f, I:%f, OUT:%f\r\n",
@@ -36,14 +43,13 @@ void Debug_Task()
         //     chassis.Tar_Pos_X, chassis.Tar_Pos_Y, chassis.Tar_Angle);
         // printf(":%d, tar_angle:%f, angle:%f, vel:%f, OP:%f, OI:%f, AP:%f, out:%f\r\n",
         //     0,
-        //     gimbal.tar_gimbal_angle, gimbal.gimbal_angle, gimbal.gimbal_omega,
+        //     gimbal.tar_rotate_angle, gimbal.rotate_angle, gimbal.rotate_omega,
         //     gimbal.PID_Omega.P, gimbal.PID_Omega.I, gimbal.PID_Angle.P,
         //     gimbal.PID_Omega.output_value);
-        // printf(":%d, tar_omega:%f, omega:%f, P:%f, I:%f, out:%f\r\n",
-        //     0,
-        //     gimbal.tar_gimbal_omega, gimbal.gimbal_omega,
-        //     gimbal.PID_Omega.P, gimbal.PID_Omega.I,
-        //     gimbal.PID_Omega.output_value);
+        // printf(":%d, tar_omega:%f, omega:%f, P:%f, I:%f, OUT:%f\r\n", 0,
+        //     gimbal.tar_vel_x, gimbal.rotate_omega,
+        //     gimbal.PID_CAM_Omega.P, gimbal.PID_CAM_Omega.I,
+        //     gimbal.PID_CAM_Omega.output_value);
         vTaskDelay(10);
     }
 

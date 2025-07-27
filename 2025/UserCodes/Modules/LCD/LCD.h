@@ -2,7 +2,12 @@
 #define __LCD_H__
 #include "main.h"
 #include "usart.h"
-void LCD_SendData(uint16_t temp1, uint16_t temp2);
-void LCD_Init(void);
-
+class LCD
+{
+public:
+    UART_HandleTypeDef* huart;
+    void SendData(uint16_t temp1, uint16_t temp2);
+    void Init(UART_HandleTypeDef* _huart);
+};
+extern LCD lcd;
 #endif

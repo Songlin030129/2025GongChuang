@@ -2,19 +2,19 @@
 #include "Debug_Task.h"
 #include "Chassis_Task.h"
 #include "Key_Task.h"
-#include "Command_Task.h"
-#include "LED_Task.h"
+#include "HMI_Task.h"
+#include "Main_Task.h"
 #include "Gimbal_Task.h"
-static TaskHandle_t LED_Task_Handle;
+static TaskHandle_t Main_Task_Handle;
 static TaskHandle_t KEY_Task_Handle;
 static TaskHandle_t DBG_Task_Handle;
 static TaskHandle_t Chassis_Task_Handle;
-static TaskHandle_t Command_Task_Handle;
+static TaskHandle_t HMI_Task_Handle;
 static TaskHandle_t Gimbal_Task_Handle;
 
-void LEDTask(void* argument)
+void MainTask(void* argument)
 {
-    LED_Task();
+    Main_Task();
 }
 void KEYTask(void* argument)
 {
@@ -28,9 +28,9 @@ void ChassisTask(void* argument)
 {
     Chassis_Task();
 }
-void CommandTask(void* arrgument)
+void HMITask(void* arrgument)
 {
-    Command_Task();
+    HMI_Task();
 }
 void GimbalTask(void* arrgument)
 {
@@ -41,11 +41,11 @@ void GimbalTask(void* arrgument)
 void Main()
 {
     BaseType_t xReturn = pdTRUE;
-    xReturn = xTaskCreate(LEDTask, "LEDTask", 128, NULL, osPriorityNormal, &LED_Task_Handle);
+    xReturn = xTaskCreate(MainTask, "MainTask", 128, NULL, osPriorityNormal, &Main_Task_Handle);
     if (xReturn == pdTRUE)
-        printf("LED Task Create Success!\r\n");
+        printf("Main Task Create Success!\r\n");
     else
-        printf("LED Task Create Fail\r\n");
+        printf("Main Task Create Fail\r\n");
 
     xReturn = xTaskCreate(KEYTask, "KEYTask", 128, NULL, osPriorityNormal, &KEY_Task_Handle);
     if (xReturn == pdTRUE)
@@ -65,11 +65,11 @@ void Main()
     else
         printf("Chassis Task Create Fail\r\n");
 
-    xReturn = xTaskCreate(CommandTask, "CommandTask", 512, NULL, osPriorityNormal1, &Command_Task_Handle);
+    xReturn = xTaskCreate(HMITask, "HMITask", 512, NULL, osPriorityNormal1, &HMI_Task_Handle);
     if (xReturn == pdTRUE)
-        printf("Command Task Create Success!\r\n");
+        printf("HMI Task Create Success!\r\n");
     else
-        printf("Command Task Create Fail\r\n");
+        printf("HMI Task Create Fail\r\n");
 
     xReturn = xTaskCreate(GimbalTask, "GimbalTask", 512, NULL, osPriorityNormal1, &Gimbal_Task_Handle);
     if (xReturn == pdTRUE)

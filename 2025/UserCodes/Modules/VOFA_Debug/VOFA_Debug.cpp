@@ -21,6 +21,12 @@ void VOFA_Debug::UartReceive_IDLE_DMA_Callback(UART_HandleTypeDef* huart, uint16
 {
     if (huart == this->huart)
     {
+        // 清除错误标志位
+        __HAL_UART_CLEAR_OREFLAG(huart);
+        __HAL_UART_CLEAR_FEFLAG(huart);
+        __HAL_UART_CLEAR_PEFLAG(huart);
+        __HAL_UART_CLEAR_NEFLAG(huart);
+
         char RxData[DEBUG_RX_BUFFER_SIZE_MAX];
         for (int i = 0; i < Size; i++)
         {
@@ -35,6 +41,35 @@ void VOFA_Debug::UartReceive_IDLE_DMA_Callback(UART_HandleTypeDef* huart, uint16
         if (RxFlag <= 0)
             printf("Error: sscanf failed\n");
 
+        HAL_UARTEx_ReceiveToIdle_DMA(huart, (uint8_t*)this->RxBuffer, DEBUG_RX_BUFFER_SIZE_MAX);
+    }
+}
+
+void VOFA_Debug::UART_ErrorCallback(UART_HandleTypeDef* huart)
+{
+    if (huart == this->huart)
+    {
+        // 停止当前的DMA传输
+        HAL_UART_DMAStop(huart);
+
+        // 清除所有错误标志位
+        __HAL_UART_CLEAR_OREFLAG(huart);
+        __HAL_UART_CLEAR_FEFLAG(huart);
+        __HAL_UART_CLEAR_PEFLAG(huart);
+        __HAL_UART_CLEAR_NEFLAG(huart);
+        __HAL_UART_CLEAR_IDLEFLAG(huart);
+
+        // 清空接收FIFO
+        while (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE))
+        {
+            volatile uint8_t temp = huart->Instance->DR;
+            (void)temp;
+        }
+
+        // 清空缓冲区
+        memset(this->RxBuffer, 0, DEBUG_RX_BUFFER_SIZE_MAX);
+
+        // 重新启动DMA接收
         HAL_UARTEx_ReceiveToIdle_DMA(huart, (uint8_t*)this->RxBuffer, DEBUG_RX_BUFFER_SIZE_MAX);
     }
 }

@@ -4,6 +4,10 @@
 #include "Chassis.h"
 #include "Motion.h"
 #include "DMMotor.h"
+#include "Motion.h"
+#include "Main_Task.h"
+extern uint8_t run_enable;
+
 void Key_Task()
 {
     keys.AddKey(&key1, KEY1_GPIO_Port, KEY1_Pin);
@@ -20,18 +24,13 @@ void Key_Task()
 void KEY_KeyClickCallback(KEY* key)
 {
     if (key == &key1) {
-        dm_gimbal.SaveZeroPoint();
+        // dm_gimbal.SaveZeroPoint();
     }
     if (key == &key2) {
-        data_packet_t temp = { 0 };
-        temp.u_data1 = 0;
-        temp.u_data2 = 1;
-        temp.command_type = 3;
-        hmi.recvlist.push_back(temp);
+        run_enable = 1;
     }
     if (key == &key3) {
-        chassis.Pos_Rst();
-
+        // chassis.Pos_Rst();
     }
 }
 void KEY_MultipleClickCallback(KEY* key)

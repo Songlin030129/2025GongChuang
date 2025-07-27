@@ -181,12 +181,11 @@ void OPS::UART_ErrorCallback(UART_HandleTypeDef* huart)
         // 停止当前的DMA传输
         HAL_UART_DMAStop(huart);
 
-        // 清除所有错误标志位
+        // 清除错误标志位
         __HAL_UART_CLEAR_OREFLAG(huart);
         __HAL_UART_CLEAR_FEFLAG(huart);
         __HAL_UART_CLEAR_PEFLAG(huart);
         __HAL_UART_CLEAR_NEFLAG(huart);
-        __HAL_UART_CLEAR_IDLEFLAG(huart);
 
         // 清空接收FIFO
         while (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE))

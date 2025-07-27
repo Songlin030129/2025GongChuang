@@ -1,18 +1,21 @@
 #include "LCD.h"
-
+LCD lcd;
 uint8_t LCD_Data[19] = { 0x74, 0x30, 0x2E, 0x74, 0x78, 0x74, 0x3D, 0x22, 0x31, 0x33, 0x31, 0x2B, 0x31, 0x33, 0x33, 0x22, 0xFF, 0xFF, 0xFF };
-// 123的排列组合
-void LCD_Init(void)
+
+void LCD::Init(UART_HandleTypeDef* _huart)
 {
+    huart = _huart;
     LCD_Data[8] = 0x2B;
     LCD_Data[9] = 0x2B;
     LCD_Data[10] = 0x2B;
     LCD_Data[12] = 0x2B;
     LCD_Data[13] = 0x2B;
     LCD_Data[14] = 0x2B;
-    HAL_UART_Transmit(&huart4, LCD_Data, 19, 0xFFFFF);
+    HAL_UART_Transmit(huart, LCD_Data, 19, 0xFFFFF);
+
 }
-void LCD_SendData(uint16_t temp1, uint16_t temp2)
+
+void LCD::SendData(uint16_t temp1, uint16_t temp2)
 {
     uint16_t temp = temp1;
     switch (temp)
@@ -87,5 +90,6 @@ void LCD_SendData(uint16_t temp1, uint16_t temp2)
         break;
     }
 
-    HAL_UART_Transmit(&huart4, LCD_Data, 19, 0xFFFFF);
+    HAL_UART_Transmit(huart, LCD_Data, 19, 0xFFFFF);
+
 }
