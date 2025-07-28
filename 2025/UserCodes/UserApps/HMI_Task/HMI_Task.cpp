@@ -18,10 +18,6 @@ void HMI_Task()
             for (std::list<data_packet_t>::iterator it = hmi.recvlist.begin(); it != hmi.recvlist.end(); ++it) {
                 if (it->type == HMI::DATA_TYPE_QRCODE)
                 {
-                    lcd.SendData(it->u_data1, it->u_data2);
-                    hmi.recvlist.erase(it);
-                    lcd.SendData(it->u_data1, it->u_data2);
-                    qrcode_detected = 1;
                     switch (it->u_data1)
                     {
                     case 1: // 123
@@ -92,6 +88,11 @@ void HMI_Task()
                     default:
                         break;
                     }
+
+                    lcd.SendData(it->u_data1, it->u_data2);
+                    hmi.recvlist.erase(it);
+                    lcd.SendData(it->u_data1, it->u_data2);
+                    qrcode_detected = 1;
                 }
                 else if (it->type == HMI::DATA_TYPE_TARGET_ERR)
                 {

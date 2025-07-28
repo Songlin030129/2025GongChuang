@@ -2,7 +2,7 @@
 #define DEBUG_PATH 0
 #define FF_GAIN 1.0f
 Paths paths;
-uint8_t Paths::task_from_1_to_2()
+uint8_t Paths::task_from_start_to_qrcode()
 {
     uint8_t ret = 0;
     static uint8_t NAV_STATE = 0; // 状态机索引
@@ -10,12 +10,12 @@ uint8_t Paths::task_from_1_to_2()
     switch (NAV_STATE)
     {
     case 0: //********** 初始化状态 **********
-        navi_1_to_2.addPath(&path_1_to_2);
+        navi_start_to_qrcode.addPath(&path_start_to_qrcode);
         NAV_STATE = 1; // 切换到运行状态
         break;
     case 1: //********** 运行状态 **********
 
-        global_state = navi_1_to_2.path_interpolation();
+        global_state = navi_start_to_qrcode.path_interpolation();
         chassis.Tar_Pos_X = global_state.x;
         chassis.Tar_Pos_Y = global_state.y;
         chassis.Tar_Angle = global_state.theta;
@@ -44,7 +44,7 @@ uint8_t Paths::task_from_1_to_2()
     return ret;
 }
 
-uint8_t Paths::task_from_2_to_3()
+uint8_t Paths::task_from_qrcode_to_material()
 {
     uint8_t ret = 0;
     static uint8_t NAV_STATE = 0; // 状态机索引
@@ -52,12 +52,12 @@ uint8_t Paths::task_from_2_to_3()
     switch (NAV_STATE)
     {
     case 0: //********** 初始化状态 **********
-        navi_2_to_3.addPath(&path_2_to_3);
+        navi_qrcode_to_material.addPath(&path_qrcode_to_material);
         NAV_STATE = 1; // 切换到运行状态
         break;
     case 1: //********** 运行状态 **********
 
-        global_state = navi_2_to_3.path_interpolation();
+        global_state = navi_qrcode_to_material.path_interpolation();
         chassis.Tar_Pos_X = global_state.x;
         chassis.Tar_Pos_Y = global_state.y;
         chassis.Tar_Angle = global_state.theta;
@@ -85,7 +85,7 @@ uint8_t Paths::task_from_2_to_3()
     return ret;
 }
 
-uint8_t Paths::task_from_3_to_7(uint8_t _des_flag)
+uint8_t Paths::task_from_material_to_process()
 {
     uint8_t ret = 0;
     static uint8_t NAV_STATE = 0; // 状态机索引
@@ -93,21 +93,12 @@ uint8_t Paths::task_from_3_to_7(uint8_t _des_flag)
     switch (NAV_STATE)
     {
     case 0: //********** 初始化状态 **********
-        if (_des_flag == 1) {
-            path_3_to_7[3].end_pos = pos_7_1;
-        }
-        else if (_des_flag == 2) {
-            path_3_to_7[3].end_pos = pos_7_2;
-        }
-        else if (_des_flag == 3) {
-            path_3_to_7[3].end_pos = pos_7_3;
-        }
-        navi_3_to_7.addPaths(path_3_to_7, 4);
+        navi_material_to_process.addPaths(path_material_to_process, 2);
         NAV_STATE = 1; // 切换到运行状态
         break;
     case 1: //********** 运行状态 **********
 
-        global_state = navi_3_to_7.path_interpolation();
+        global_state = navi_material_to_process.path_interpolation();
         chassis.Tar_Pos_X = global_state.x;
         chassis.Tar_Pos_Y = global_state.y;
         chassis.Tar_Angle = global_state.theta;
@@ -135,7 +126,7 @@ uint8_t Paths::task_from_3_to_7(uint8_t _des_flag)
     return ret;
 }
 
-uint8_t Paths::task_from_7_to_10(uint8_t _src_flag, uint8_t _des_flag)
+uint8_t Paths::task_from_process_to_storage()
 {
     uint8_t ret = 0;
     static uint8_t NAV_STATE = 0; // 状态机索引
@@ -143,31 +134,13 @@ uint8_t Paths::task_from_7_to_10(uint8_t _src_flag, uint8_t _des_flag)
     switch (NAV_STATE)
     {
     case 0: //********** 初始化状态 **********
-        if (_src_flag == 1) {
-            path_7_to_10[0].start_pos = pos_7_1;
-        }
-        else if (_src_flag == 2) {
-            path_7_to_10[0].start_pos = pos_7_2;
-        }
-        else if (_src_flag == 3) {
-            path_7_to_10[0].start_pos = pos_7_3;
-        }
-        if (_des_flag == 1) {
-            path_7_to_10[2].end_pos = pos_10_1;
-        }
-        else if (_des_flag == 2) {
-            path_7_to_10[2].end_pos = pos_10_2;
-        }
-        else if (_des_flag == 3) {
-            path_7_to_10[2].end_pos = pos_10_3;
-        }
 
-        navi_7_to_10.addPaths(path_7_to_10, 3);
+        navi_process_to_storage.addPaths(path_process_to_storage, 3);
         NAV_STATE = 1; // 切换到运行状态
         break;
     case 1: //********** 运行状态 **********
 
-        global_state = navi_7_to_10.path_interpolation();
+        global_state = navi_process_to_storage.path_interpolation();
         chassis.Tar_Pos_X = global_state.x;
         chassis.Tar_Pos_Y = global_state.y;
         chassis.Tar_Angle = global_state.theta;
@@ -195,7 +168,7 @@ uint8_t Paths::task_from_7_to_10(uint8_t _src_flag, uint8_t _des_flag)
     return ret;
 }
 
-uint8_t Paths::task_from_10_to_3(uint8_t _src_flag)
+uint8_t Paths::task_from_storage_to_material()
 {
     uint8_t ret = 0;
     static uint8_t NAV_STATE = 0; // 状态机索引
@@ -203,21 +176,12 @@ uint8_t Paths::task_from_10_to_3(uint8_t _src_flag)
     switch (NAV_STATE)
     {
     case 0: //********** 初始化状态 **********
-        if (_src_flag == 1) {
-            path_10_to_3[0].start_pos = pos_10_1;
-        }
-        else if (_src_flag == 2) {
-            path_10_to_3[0].start_pos = pos_10_2;
-        }
-        else if (_src_flag == 3) {
-            path_10_to_3[0].start_pos = pos_10_3;
-        }
-        navi_10_to_3.addPaths(path_10_to_3, 3);
+        navi_storage_to_material.addPaths(path_storage_to_material, 3);
         NAV_STATE = 1; // 切换到运行状态
         break;
     case 1: //********** 运行状态 **********
 
-        global_state = navi_10_to_3.path_interpolation();
+        global_state = navi_storage_to_material.path_interpolation();
         chassis.Tar_Pos_X = global_state.x;
         chassis.Tar_Pos_Y = global_state.y;
         chassis.Tar_Angle = global_state.theta;
@@ -245,7 +209,7 @@ uint8_t Paths::task_from_10_to_3(uint8_t _src_flag)
     return ret;
 }
 
-uint8_t Paths::task_from_10_to_1(uint8_t _src_flag)
+uint8_t Paths::task_from_storage_to_stop()
 {
     uint8_t ret = 0;
     static uint8_t NAV_STATE = 0; // 状态机索引
@@ -253,22 +217,12 @@ uint8_t Paths::task_from_10_to_1(uint8_t _src_flag)
     switch (NAV_STATE)
     {
     case 0: //********** 初始化状态 **********
-        if (_src_flag == 1) {
-            path_10_to_1[0].start_pos = pos_10_1;
-        }
-        else if (_src_flag == 2) {
-            path_10_to_1[0].start_pos = pos_10_2;
-        }
-        else if (_src_flag == 3) {
-            path_10_to_1[0].start_pos = pos_10_3;
-        }
-
-        navi_10_to_1.addPaths(path_10_to_1, 4);
+        navi_storage_to_stop.addPaths(path_storage_to_stop, 4);
         NAV_STATE = 1; // 切换到运行状态
         break;
     case 1: //********** 运行状态 **********
 
-        global_state = navi_10_to_1.path_interpolation();
+        global_state = navi_storage_to_stop.path_interpolation();
         chassis.Tar_Pos_X = global_state.x;
         chassis.Tar_Pos_Y = global_state.y;
         chassis.Tar_Angle = global_state.theta;

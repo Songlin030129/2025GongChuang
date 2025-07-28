@@ -6,6 +6,7 @@
 #include "DMMotor.h"
 #include "Motion.h"
 #include "Main_Task.h"
+#include "Gimbal.h"
 extern uint8_t run_enable;
 
 void Key_Task()
@@ -25,12 +26,16 @@ void KEY_KeyClickCallback(KEY* key)
 {
     if (key == &key1) {
         // dm_gimbal.SaveZeroPoint();
-    }
-    if (key == &key2) {
         run_enable = 1;
     }
+    if (key == &key2) {
+        chassis.control_enable = 0;
+        gimbal.control_enable = 0;
+
+    }
     if (key == &key3) {
-        // chassis.Pos_Rst();
+        chassis.Pos_Rst();
+        NVIC_SystemReset();
     }
 }
 void KEY_MultipleClickCallback(KEY* key)

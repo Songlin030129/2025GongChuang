@@ -20,6 +20,7 @@ void Gimbal::Init(CAN_HandleTypeDef* _hcan)
     if (servo_jaw.ping() != 1) printf("servo_jaw error\r\n");
 
     tar_jaw_angle = JAW_ANGLE_OPEN;
+    control_enable = 1;
 }
 
 void Gimbal::loop_control()
@@ -49,6 +50,12 @@ void Gimbal::loop_control()
     camera_x_err = LPF_ERR_X(camera_raw_x_err);
     camera_y_err = LPF_ERR_Y(camera_raw_y_err);
 
+    if (!control_enable) {
+        dm_gimbal.Control(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        zdt_vert.SetVelocity(0.0f, 0.0f, ZDTMotor::MULTI_MODE_ASYNC);
+        zdt_hori.SetVelocity(0.0f, 0.0f, ZDTMotor::MULTI_MODE_ASYNC);
+        return;
+    }
     servo_jaw.setAngle(tar_jaw_angle, JAW_INTERVAL);
 
     // 垂直电机位置闭环
@@ -83,10 +90,25 @@ void Gimbal::loop_control()
 
             float tar_vel_y = PID_CAM_Y.Cal(-camera_y_err, 0.0f);
             if (extension_distance <= 0.01f) {
-                if (tar_vel_y <= 0) tar_vel_y = 0;
+                if (tar_vel_y <= 0) {
+                    tar_vel_y = 0;
+                    flag_out_of_range = 1;
+                }
+                else {
+                    flag_out_of_range = 0;
+                }
             }
             else if (extension_distance >= 0.18f) {
-                if (tar_vel_y >= 0) tar_vel_y = 0;
+                if (tar_vel_y >= 0) {
+                    tar_vel_y = 0;
+                    flag_out_of_range = 1;
+                }
+                else {
+                    flag_out_of_range = 0;
+                }
+            }
+            else {
+                flag_out_of_range = 0;
             }
             zdt_hori.SetVelocity(tar_vel_y, 10000, ZDTMotor::MULTI_MODE_ASYNC);
 

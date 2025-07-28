@@ -41,16 +41,20 @@ public:
     float Vel_X, Vel_Y, Vel_A;
     float Tar_Vel_X, Tar_Vel_Y, Tar_Vel_A;
     float Vel_X_FF, Vel_Y_FF;
+    enum CHASSIS_CONTROL_MODE {
+        CHASSIS_POSITION_CONTROL = 0,
+        CHASSIS_NAVIGATE_CONTROL = 1,
+    } chassis_control_mode = CHASSIS_POSITION_CONTROL;
 
     // PIDController pid_pos_x{ 10.0, 0, 0, 0, 1.0, 0 };
     // PIDController pid_pos_y{ 10.0, 0, 0, 0, 1.0, 0 };
     PIDController pid_angle{ 10.0, 0, 0, 0, 3.14, 0 };
 
-    PIDController pid_pos_x{ 1.5, 0, 0, 0, 1.0, 0 };
-    PIDController pid_pos_y{ 1.5, 0, 0, 0, 1.0, 0 };
+    PIDController pid_pos_x{ 3.0, 0, 0, 0, 1.0, 0 };
+    PIDController pid_pos_y{ 3.0, 0, 0, 0, 1.0, 0 };
 
     float Tar_Pos_X, Tar_Pos_Y, Tar_Angle;
-
+    uint8_t control_enable;
     uint32_t Last_Tick;
 
 };

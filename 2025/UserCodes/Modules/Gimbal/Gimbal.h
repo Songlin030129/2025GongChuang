@@ -14,6 +14,8 @@ public:
     float last_tick, ts;
     void Init(CAN_HandleTypeDef* _hcan);
     void loop_control();
+    uint8_t control_enable;
+    uint8_t flag_out_of_range;
     //运行状态量
     float extension_distance = 0;
     float rotate_angle = 0;
@@ -46,9 +48,9 @@ public:
     float camera_y_err = 0;
     LowPassFilter LPF_ERR_X{ 0.025f };
     LowPassFilter LPF_ERR_Y{ 0.025f };
-    PIDController PID_CAM_X{ 0.002f, 0.0f, 0.0f, 0.0f, 0.8f, 0.0f };
-    PIDController PID_CAM_Y{ 0.9f, 0.0f, 0.0f, 0.0f, 2.0f, 0.0f };
-    PIDController PID_CAM_Omega{ 1.5f, 7.0f, 0.0f, 0.0f, 3.0f, 0.0f };
+    PIDController PID_CAM_X{ 0.002f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f };
+    PIDController PID_CAM_Y{ 0.9f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+    PIDController PID_CAM_Omega{ 1.5f, 6.0f, 0.0f, 0.0f, 3.0f, 0.0f };
 
     enum GIMBAL_CONTROL_MODE {
         GIMBAL_POSITION_CONTROL = 0,
@@ -69,9 +71,9 @@ public:
     static constexpr float ROTATE_ANGLE_IN_1 = -0.51f;
     static constexpr float ROTATE_ANGLE_IN_2 = 0.0f;
     static constexpr float ROTATE_ANGLE_IN_3 = 0.51f;
-    static constexpr float ROTATE_ANGLE_OUT_1 = -3.14f;
+    static constexpr float ROTATE_ANGLE_OUT_1 = -3.90f;
     static constexpr float ROTATE_ANGLE_OUT_2 = -3.14f;
-    static constexpr float ROTATE_ANGLE_OUT_3 = -3.14f;
+    static constexpr float ROTATE_ANGLE_OUT_3 = -2.52f;
     static constexpr float ROTATE_FINISHED_THRESHOLD = 0.05f;
 
     // 夹爪角度常量
@@ -93,7 +95,9 @@ public:
     static constexpr float EXTENSION_DISTANCE_IN_1 = 0.045f;
     static constexpr float EXTENSION_DISTANCE_IN_2 = 0.020f;
     static constexpr float EXTENSION_DISTANCE_IN_3 = 0.045f;
-    static constexpr float EXTENSION_DISTANCE_OUT_2 = 0.00f;
+    static constexpr float EXTENSION_DISTANCE_OUT_1 = 0.10f;
+    static constexpr float EXTENSION_DISTANCE_OUT_2 = 0.03f;
+    static constexpr float EXTENSION_DISTANCE_OUT_3 = 0.10f;
     static constexpr float EXTENSION_FINISHED_THRESHOLD = 0.005f;
 };
 

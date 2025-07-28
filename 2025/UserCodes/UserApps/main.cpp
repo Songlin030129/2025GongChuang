@@ -41,13 +41,13 @@ void GimbalTask(void* arrgument)
 void Main()
 {
     BaseType_t xReturn = pdTRUE;
-    xReturn = xTaskCreate(MainTask, "MainTask", 128, NULL, osPriorityNormal, &Main_Task_Handle);
+    xReturn = xTaskCreate(MainTask, "MainTask", 2048, NULL, osPriorityNormal, &Main_Task_Handle);
     if (xReturn == pdTRUE)
         printf("Main Task Create Success!\r\n");
     else
         printf("Main Task Create Fail\r\n");
 
-    xReturn = xTaskCreate(KEYTask, "KEYTask", 128, NULL, osPriorityNormal, &KEY_Task_Handle);
+    xReturn = xTaskCreate(KEYTask, "KEYTask", 256, NULL, osPriorityNormal, &KEY_Task_Handle);
     if (xReturn == pdTRUE)
         printf("KEY Task Create Success!\r\n");
     else

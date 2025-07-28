@@ -4,7 +4,9 @@
 #include "DJIMotor.h"
 #include "Gimbal.h"
 #include "Chassis.h"
-float tar_vel = 0;
+#include "Main_Task.h"
+extern system_state_t global_state;
+
 void Debug_Task()
 {
     debug.Init(&huart2);
@@ -13,22 +15,23 @@ void Debug_Task()
     // debug.Add_ValueCommander("OP", &gimbal.PID_Omega.P);
     // debug.Add_ValueCommander("OI", &gimbal.PID_Omega.I);
     // debug.Add_ValueCommander("AP", &gimbal.PID_Angle.P);
-    debug.Add_ValueCommander("PX", &gimbal.PID_CAM_X.P);
-    debug.Add_ValueCommander("PY", &gimbal.PID_CAM_Y.P);
-    debug.Add_ValueCommander("DX", &gimbal.PID_CAM_X.D);
-    debug.Add_ValueCommander("DY", &gimbal.PID_CAM_Y.D);
+    // debug.Add_ValueCommander("PX", &gimbal.PID_CAM_X.P);
+    // debug.Add_ValueCommander("PY", &gimbal.PID_CAM_Y.P);
+    // debug.Add_ValueCommander("DX", &gimbal.PID_CAM_X.D);
+    // debug.Add_ValueCommander("DY", &gimbal.PID_CAM_Y.D);
     // debug.Add_ValueCommander("T", &gimbal.tar_vel_x);
     // debug.Add_ValueCommander("P", &gimbal.PID_CAM_Omega.P);
     // debug.Add_ValueCommander("I", &gimbal.PID_CAM_Omega.I);
 
     while (1) {
         debug.Run_Debug();
-        printf("angle:%f, distance:%f, PX:%f, PY:%f, DX:%f, DY:%f, x_err:%f, x_out:%f, y_err:%f, y_out:%f\r\n",
-            gimbal.rotate_angle, gimbal.extension_distance,
-            gimbal.PID_CAM_X.P, gimbal.PID_CAM_Y.P,
-            gimbal.PID_CAM_X.D, gimbal.PID_CAM_Y.D,
-            gimbal.camera_x_err, gimbal.PID_CAM_X.output_value,
-            gimbal.camera_y_err, gimbal.PID_CAM_Y.output_value);
+        // printf("ops_x:%f, ops_y:%f\r\n", ops.Pos_X, ops.Pos_Y);
+        // printf("angle:%f, distance:%f, PX:%f, PY:%f, DX:%f, DY:%f, x_err:%f, x_out:%f, y_err:%f, y_out:%f\r\n",
+        //     gimbal.rotate_angle, gimbal.extension_distance,
+        //     gimbal.PID_CAM_X.P, gimbal.PID_CAM_Y.P,
+        //     gimbal.PID_CAM_X.D, gimbal.PID_CAM_Y.D,
+        //     gimbal.camera_x_err, gimbal.PID_CAM_X.output_value,
+        //     gimbal.camera_y_err, gimbal.PID_CAM_Y.output_value);
         // printf(":%d, tar_vel:%f, vel:%f, angle:%f, P:%f, I:%f, OUT:%f\r\n",
         //     0,
         //     tar_vel,

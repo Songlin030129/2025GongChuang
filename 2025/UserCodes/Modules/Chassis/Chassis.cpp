@@ -9,7 +9,7 @@ void Chassis::Init(CAN_HandleTypeDef* _hcan)
     dji_motor_group.addMotor(&dji_mot4, M2006, 4, DJIMotor::DIRECTION_POSITIVE);
 
     chassis.Set(0.0, 0.0, 0.0, 0);
-
+    control_enable = 1;
     ops.Init(&huart6);
 
 }
@@ -83,10 +83,14 @@ void Chassis::Loop_Control()
     Last_Pos_X = ops.Pos_X;
     Last_Pos_Y = ops.Pos_Y;
     Last_Yaw = ops.Yaw;
+    if (control_enable) {
+        Tar_Vel_X = pid_pos_x.Cal(Tar_Pos_X - ops.Pos_X, Vel_X_FF);
+        Tar_Vel_Y = pid_pos_y.Cal(Tar_Pos_Y - ops.Pos_Y, Vel_Y_FF);
+        Tar_Vel_A = pid_angle.Cal(Tar_Angle - ops.Yaw, 0);
 
-    Tar_Vel_X = pid_pos_x.Cal(Tar_Pos_X - ops.Pos_X, Vel_X_FF);
-    Tar_Vel_Y = pid_pos_y.Cal(Tar_Pos_Y - ops.Pos_Y, Vel_Y_FF);
-    Tar_Vel_A = pid_angle.Cal(Tar_Angle - ops.Yaw, 0);
-
-    chassis.Set(Tar_Vel_X, Tar_Vel_Y, Tar_Vel_A, ops.Yaw);
+        chassis.Set(Tar_Vel_X, Tar_Vel_Y, Tar_Vel_A, ops.Yaw);
+    }
+    else {
+        chassis.Set(0, 0, 0, ops.Yaw);
+    }
 }
