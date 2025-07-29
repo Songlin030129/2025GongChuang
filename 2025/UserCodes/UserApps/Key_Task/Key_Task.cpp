@@ -7,7 +7,7 @@
 #include "Motion.h"
 #include "Main_Task.h"
 #include "Gimbal.h"
-extern uint8_t run_enable;
+extern float run_enable;
 
 void Key_Task()
 {
@@ -16,7 +16,7 @@ void Key_Task()
     keys.AddKey(&key3, KEY3_GPIO_Port, KEY3_Pin);
     while (1) {
         keys.KeysHandler();
-        vTaskDelay(20);
+        vTaskDelay(30);
     }
 }
 

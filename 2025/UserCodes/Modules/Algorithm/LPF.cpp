@@ -22,3 +22,8 @@ float LowPassFilter::operator()(float x)
     y_prev = y;
     return y;
 }
+void LowPassFilter::reset()
+{
+    y_prev = 0.0f;      // 重置上一次的输出值
+    Last_Time = 0;      // 重置时间戳，下次调用时重新开始计时
+}

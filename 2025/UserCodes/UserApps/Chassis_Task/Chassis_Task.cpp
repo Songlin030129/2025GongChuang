@@ -7,6 +7,6 @@ void Chassis_Task()
     while (1) {
 
         chassis.Loop_Control();
-        vTaskDelay(5);
+        vTaskDelay(10);
     }
 }

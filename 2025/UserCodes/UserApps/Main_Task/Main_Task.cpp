@@ -3,10 +3,11 @@
 #include "Paths.h"
 #include "HMI.h"
 #include "Motion.h"
-
+#include "LCD.h"
+#include "Gimbal.h"
 system_state_t global_state = STATE_IDLE;
 system_state_t last_state;
-uint8_t run_enable = 0;
+float run_enable = 0;
 uint8_t run_round = 1;
 uint8_t qrcode_detected = 0;
 uint8_t first_round_color1, first_round_color2, first_round_color3;
@@ -34,6 +35,9 @@ void Main_Task()
 {
     led1.Init(LED1_GPIO_Port, LED1_Pin);
     led2.Init(LED2_GPIO_Port, LED2_Pin);
+    hmi.Init(&huart1);
+    lcd.Init(&huart5);
+    vTaskDelay(100);
 
     while (1)
     {
@@ -43,22 +47,23 @@ void Main_Task()
             global_state = next_state;
         }
 
-        vTaskDelay(5);
+        vTaskDelay(20);
         static int cnt = 0;
         cnt++;
         if (cnt >= 200) {
             cnt = 0;
-            led1.Toggle();
-            led2.Toggle();
-            printf("global_state:%d\r\n", (int)global_state);
+            // led1.Toggle();
+            // led2.Toggle();
+            // printf("global_state:%d\r\n", (int)global_state);
         }
     }
 }
 
 // 空闲状态
 system_state_t state_idle() {
-    if (run_enable == 1) {
+    if (run_enable >= 1) {
         run_enable = 0;
+        printf("START!!!\r\n");
         printf("moving to qrcode...\r\n");
         return STATE_MOVE_TO_QRCODE;
     }
@@ -242,7 +247,10 @@ system_state_t state_unload_storage()
         uint8_t temp = motion.get_from_car(storage_index, colors[storage_index - 1]);
         if (temp == 1) {
             printf("get block:%d...\r\n", colors[storage_index - 1]);
-            hmi.Set_Detect_Mode(HMI::DETECT_MODE_TARGET, colors[storage_index - 1]);
+            if (run_round == 1)
+                hmi.Set_Detect_Mode(HMI::DETECT_MODE_TARGET, colors[storage_index - 1]);
+            else if (run_round == 2)
+                hmi.Set_Detect_Mode(HMI::DETECT_MODE_BLOCK, colors[storage_index - 1]);
             vTaskDelay(100);
             temp_state = 1;
         }
@@ -272,6 +280,9 @@ system_state_t state_unload_storage()
                 }
                 else if (run_round == 2) {
                     printf("finish round 2, moving to start area...\r\n");
+                    gimbal.Extension_Move(Gimbal::EXTENSION_DISTANCE_IN_2);
+                    gimbal.Lift_Move(Gimbal::LIFT_DISTANCE_TOP);
+                    gimbal.Rotate_Move(Gimbal::ROTATE_ANGLE_IN_2);
                     return STATE_MOVE_TO_STOP;
                 }
             }

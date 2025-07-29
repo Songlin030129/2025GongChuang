@@ -41,7 +41,7 @@ void GimbalTask(void* arrgument)
 void Main()
 {
     BaseType_t xReturn = pdTRUE;
-    xReturn = xTaskCreate(MainTask, "MainTask", 2048, NULL, osPriorityNormal, &Main_Task_Handle);
+    xReturn = xTaskCreate(MainTask, "MainTask", 1024, NULL, osPriorityNormal, &Main_Task_Handle);
     if (xReturn == pdTRUE)
         printf("Main Task Create Success!\r\n");
     else
@@ -65,11 +65,11 @@ void Main()
     else
         printf("Chassis Task Create Fail\r\n");
 
-    xReturn = xTaskCreate(HMITask, "HMITask", 512, NULL, osPriorityNormal1, &HMI_Task_Handle);
-    if (xReturn == pdTRUE)
-        printf("HMI Task Create Success!\r\n");
-    else
-        printf("HMI Task Create Fail\r\n");
+    // xReturn = xTaskCreate(HMITask, "HMITask", 512, NULL, osPriorityNormal1, &HMI_Task_Handle);
+    // if (xReturn == pdTRUE)
+    //     printf("HMI Task Create Success!\r\n");
+    // else
+    //     printf("HMI Task Create Fail\r\n");
 
     xReturn = xTaskCreate(GimbalTask, "GimbalTask", 512, NULL, osPriorityNormal1, &Gimbal_Task_Handle);
     if (xReturn == pdTRUE)

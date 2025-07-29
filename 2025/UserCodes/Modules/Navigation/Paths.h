@@ -31,12 +31,12 @@ public:
 
 private:
     Navigation navi_start_to_qrcode;
-    path_t path_start_to_qrcode = {
-         PATH_TYPE_START_END, PATH_SHAPE_LINE, pos_start, pos_qrcode
+    path_t path_start_to_qrcode[1] = {
+        { PATH_TYPE_START_END, PATH_SHAPE_LINE, pos_start, pos_qrcode }
     };
     Navigation navi_qrcode_to_material;
-    path_t path_qrcode_to_material = {
-        PATH_TYPE_START_END, PATH_SHAPE_LINE, pos_qrcode, pos_material
+    path_t path_qrcode_to_material[1] = {
+        { PATH_TYPE_START_END, PATH_SHAPE_LINE, pos_qrcode, pos_material }
     };
     Navigation navi_material_to_process;
     path_t path_material_to_process[2] = {
@@ -50,10 +50,9 @@ private:
         { PATH_TYPE_END, PATH_SHAPE_LINE, pos_process_storage_2, pos_storage}
     };
     Navigation navi_storage_to_material;
-    path_t path_storage_to_material[3] = {
+    path_t path_storage_to_material[2] = {
         { PATH_TYPE_START, PATH_SHAPE_LINE, pos_storage, pos_storage_start_1},
         { PATH_TYPE_END, PATH_SHAPE_CIRCLE, pos_storage_start_1, pos_material, circle_storage_material},
-
     };
     Navigation navi_storage_to_stop;
     path_t path_storage_to_stop[4] = {

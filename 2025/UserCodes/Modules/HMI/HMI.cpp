@@ -1,5 +1,11 @@
 #include "HMI.h"
+#include "LCD.h"
+#include "Gimbal.h"
 HMI hmi;
+extern uint8_t qrcode_detected;
+extern uint8_t first_round_color1, first_round_color2, first_round_color3;
+extern uint8_t second_round_color1, second_round_color2, second_round_color3;
+
 /**
  * @brief HMI初始化
  *
@@ -31,7 +37,99 @@ void HMI::UartReceive_IDLE_DMA_Callback(UART_HandleTypeDef* huart, uint16_t Size
         if (RxBuffer[0] == HEADER_BUFFER && RxBuffer[Size - 1] == FOOTER_BUFFER)
         {
             memcpy(&rxdata, RxBuffer, sizeof(data_packet_t));
-            recvlist.push_back(rxdata);
+            if (rxdata.type == HMI::DATA_TYPE_QRCODE)
+            {
+                switch (rxdata.u_data1)
+                {
+                case 1: // 123
+                    first_round_color1 = 1;
+                    first_round_color2 = 2;
+                    first_round_color3 = 3;
+                    break;
+                case 2: // 132
+                    first_round_color1 = 1;
+                    first_round_color2 = 3;
+                    first_round_color3 = 2;
+                    break;
+                case 3: // 213
+                    first_round_color1 = 2;
+                    first_round_color2 = 1;
+                    first_round_color3 = 3;
+                    break;
+                case 4: // 231
+                    first_round_color1 = 2;
+                    first_round_color2 = 3;
+                    first_round_color3 = 1;
+                    break;
+                case 5: // 312
+                    first_round_color1 = 3;
+                    first_round_color2 = 1;
+                    first_round_color3 = 2;
+                    break;
+                case 6: // 321
+                    first_round_color1 = 3;
+                    first_round_color2 = 2;
+                    first_round_color3 = 1;
+                    break;
+                default:
+                    break;
+                }
+                switch (rxdata.u_data2)
+                {
+                case 1: // 123
+                    second_round_color1 = 1;
+                    second_round_color2 = 2;
+                    second_round_color3 = 3;
+                    break;
+                case 2: // 132
+                    second_round_color1 = 1;
+                    second_round_color2 = 3;
+                    second_round_color3 = 2;
+                    break;
+                case 3: // 213
+                    second_round_color1 = 2;
+                    second_round_color2 = 1;
+                    second_round_color3 = 3;
+                    break;
+                case 4: // 231
+                    second_round_color1 = 2;
+                    second_round_color2 = 3;
+                    second_round_color3 = 1;
+                    break;
+                case 5: // 312
+                    second_round_color1 = 3;
+                    second_round_color2 = 1;
+                    second_round_color3 = 2;
+                    break;
+                case 6: // 321
+                    second_round_color1 = 3;
+                    second_round_color2 = 2;
+                    second_round_color3 = 1;
+                    break;
+                default:
+                    break;
+                }
+
+                lcd.SendData(rxdata.u_data1, rxdata.u_data2);
+                lcd.SendData(rxdata.u_data1, rxdata.u_data2);
+                qrcode_detected = 1;
+            }
+            else if (rxdata.type == HMI::DATA_TYPE_TARGET_ERR)
+            {
+                if (rxdata.f_data1 <= 9000.0f && rxdata.f_data2 <= 9000.0f)
+                {
+                    gimbal.camera_data_enable = 1;
+                    gimbal.camera_detect_color = rxdata.u_data1;
+                    gimbal.camera_raw_x_err = rxdata.f_data1;
+                    gimbal.camera_raw_y_err = rxdata.f_data2;
+                }
+                else
+                {
+                    gimbal.camera_data_enable = 0;
+                }
+            }
+
+            // recvlist.push_back(rxdata);
         }
         HAL_UARTEx_ReceiveToIdle_DMA(huart, (uint8_t*)this->RxBuffer, HMI_RX_BUFFER_SIZE_MAX);
     }

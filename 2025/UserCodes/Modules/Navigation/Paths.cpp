@@ -1,6 +1,7 @@
 #include "Paths.h"
 #define DEBUG_PATH 0
 #define FF_GAIN 1.0f
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 Paths paths;
 uint8_t Paths::task_from_start_to_qrcode()
 {
@@ -10,7 +11,7 @@ uint8_t Paths::task_from_start_to_qrcode()
     switch (NAV_STATE)
     {
     case 0: //********** 初始化状态 **********
-        navi_start_to_qrcode.addPath(&path_start_to_qrcode);
+        navi_start_to_qrcode.addPaths(path_start_to_qrcode, ARRAY_SIZE(path_start_to_qrcode));
         NAV_STATE = 1; // 切换到运行状态
         break;
     case 1: //********** 运行状态 **********
@@ -52,7 +53,7 @@ uint8_t Paths::task_from_qrcode_to_material()
     switch (NAV_STATE)
     {
     case 0: //********** 初始化状态 **********
-        navi_qrcode_to_material.addPath(&path_qrcode_to_material);
+        navi_qrcode_to_material.addPaths(path_qrcode_to_material, ARRAY_SIZE(path_qrcode_to_material));
         NAV_STATE = 1; // 切换到运行状态
         break;
     case 1: //********** 运行状态 **********
@@ -93,7 +94,7 @@ uint8_t Paths::task_from_material_to_process()
     switch (NAV_STATE)
     {
     case 0: //********** 初始化状态 **********
-        navi_material_to_process.addPaths(path_material_to_process, 2);
+        navi_material_to_process.addPaths(path_material_to_process, ARRAY_SIZE(path_material_to_process));
         NAV_STATE = 1; // 切换到运行状态
         break;
     case 1: //********** 运行状态 **********
@@ -135,7 +136,7 @@ uint8_t Paths::task_from_process_to_storage()
     {
     case 0: //********** 初始化状态 **********
 
-        navi_process_to_storage.addPaths(path_process_to_storage, 3);
+        navi_process_to_storage.addPaths(path_process_to_storage, ARRAY_SIZE(path_process_to_storage));
         NAV_STATE = 1; // 切换到运行状态
         break;
     case 1: //********** 运行状态 **********
@@ -176,7 +177,7 @@ uint8_t Paths::task_from_storage_to_material()
     switch (NAV_STATE)
     {
     case 0: //********** 初始化状态 **********
-        navi_storage_to_material.addPaths(path_storage_to_material, 3);
+        navi_storage_to_material.addPaths(path_storage_to_material, ARRAY_SIZE(path_storage_to_material));
         NAV_STATE = 1; // 切换到运行状态
         break;
     case 1: //********** 运行状态 **********
@@ -217,7 +218,7 @@ uint8_t Paths::task_from_storage_to_stop()
     switch (NAV_STATE)
     {
     case 0: //********** 初始化状态 **********
-        navi_storage_to_stop.addPaths(path_storage_to_stop, 4);
+        navi_storage_to_stop.addPaths(path_storage_to_stop, ARRAY_SIZE(path_storage_to_stop));
         NAV_STATE = 1; // 切换到运行状态
         break;
     case 1: //********** 运行状态 **********

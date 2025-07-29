@@ -6,10 +6,12 @@
 #include "Chassis.h"
 #include "Main_Task.h"
 extern system_state_t global_state;
+extern float run_enable;
 
 void Debug_Task()
 {
     debug.Init(&huart2);
+    debug.Add_ValueCommander("E", &run_enable);
     // debug.Add_ValueCommander("A", &gimbal.tar_jaw_angle);
     // debug.Add_ValueCommander("T", &gimbal.tar_rotate_angle);
     // debug.Add_ValueCommander("OP", &gimbal.PID_Omega.P);
@@ -25,6 +27,8 @@ void Debug_Task()
 
     while (1) {
         debug.Run_Debug();
+        // printf(":%d, ops_x:%f, ops_y:%f, chassis_tar_x:%f, chassis_tar_y:%f\r\n", 0,
+        //     ops.Pos_X, ops.Pos_Y, chassis.Tar_Pos_X, chassis.Tar_Pos_Y);
         // printf("ops_x:%f, ops_y:%f\r\n", ops.Pos_X, ops.Pos_Y);
         // printf("angle:%f, distance:%f, PX:%f, PY:%f, DX:%f, DY:%f, x_err:%f, x_out:%f, y_err:%f, y_out:%f\r\n",
         //     gimbal.rotate_angle, gimbal.extension_distance,
@@ -53,7 +57,7 @@ void Debug_Task()
         //     gimbal.tar_vel_x, gimbal.rotate_omega,
         //     gimbal.PID_CAM_Omega.P, gimbal.PID_CAM_Omega.I,
         //     gimbal.PID_CAM_Omega.output_value);
-        vTaskDelay(10);
+        vTaskDelay(50);
     }
 
 }

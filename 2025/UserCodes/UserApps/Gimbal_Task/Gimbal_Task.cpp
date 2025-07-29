@@ -8,6 +8,6 @@ void Gimbal_Task()
     while (1)
     {
         gimbal.loop_control();
-        vTaskDelay(1);
+        vTaskDelay(5);
     }
 }

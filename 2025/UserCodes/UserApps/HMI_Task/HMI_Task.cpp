@@ -8,9 +8,6 @@ extern uint8_t second_round_color1, second_round_color2, second_round_color3;
 
 void HMI_Task()
 {
-    hmi.Init(&huart1);
-    lcd.Init(&huart5);
-    vTaskDelay(100);
     while (1)
     {
         if (!hmi.recvlist.empty())
@@ -111,7 +108,7 @@ void HMI_Task()
                 }
             }
         }
-        vTaskDelay(5);
+        vTaskDelay(10);
     }
 
 }

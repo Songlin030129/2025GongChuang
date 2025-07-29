@@ -15,6 +15,7 @@ public:
     ~LowPassFilter() = default;
 
     float operator()(float x);
+    void reset();
     float Tf;     //!< Low pass filter time constant
     float y_prev; //!< filtered value in previous execution step
     float Ts;

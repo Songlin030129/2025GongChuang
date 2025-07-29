@@ -149,6 +149,7 @@ public:
     void addPath(path_t* _path);
     void addPaths(path_t* _paths, uint8_t _size);
     global_state_t path_interpolation();
+    void clearPaths();
 
 private:
     float pre_v = 0;      // 前插补点速度 直线插补和圆弧插补中用到

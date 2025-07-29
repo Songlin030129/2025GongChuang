@@ -1,4 +1,5 @@
 #include "Gimbal.h"
+#include "LED.h"
 Gimbal gimbal;
 void Gimbal::Init(CAN_HandleTypeDef* _hcan)
 {
@@ -52,8 +53,12 @@ void Gimbal::loop_control()
 
     if (!control_enable) {
         dm_gimbal.Control(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-        zdt_vert.SetVelocity(0.0f, 0.0f, ZDTMotor::MULTI_MODE_ASYNC);
-        zdt_hori.SetVelocity(0.0f, 0.0f, ZDTMotor::MULTI_MODE_ASYNC);
+        vTaskDelay(1);
+        zdt_hori.Disable();
+        vTaskDelay(1);
+        zdt_vert.Disable();
+        vTaskDelay(1);
+        servo_jaw.setTorque(0);
         return;
     }
     servo_jaw.setAngle(tar_jaw_angle, JAW_INTERVAL);
@@ -114,7 +119,34 @@ void Gimbal::loop_control()
 
         }
     }
+    static float cnt = 0.0f;
+    cnt += ts;
+    if (cnt >= 1.0f) {
+        cnt = 0;
+        led2.Toggle();
+    }
 }
+
+void Gimbal::Set_ControlMode(gimbal_control_mode_e _mode)
+{
+    if (_mode == GIMBAL_POSITION_CONTROL && gimbal_control_mode != GIMBAL_POSITION_CONTROL) {
+        gimbal_control_mode = GIMBAL_POSITION_CONTROL;
+        tar_extension_distance = extension_distance;
+        tar_rotate_angle = rotate_angle;
+
+    }
+    else if (_mode == GIMBAL_CAMERA_CONTROL && gimbal_control_mode != GIMBAL_CAMERA_CONTROL) {
+        gimbal_control_mode = GIMBAL_CAMERA_CONTROL;
+        camera_raw_x_err = 0;
+        camera_raw_y_err = 0;
+        camera_x_err = 0;
+        camera_y_err = 0;
+        LPF_ERR_X.reset();
+        LPF_ERR_Y.reset();
+        camera_data_enable = 0;
+    }
+}
+
 uint8_t Gimbal::Camera_Calibrated()
 {
     static uint8_t continuous_count = 0;
@@ -188,3 +220,4 @@ uint8_t Gimbal::Jaw_Finished()
     else
         return 0;
 }
+

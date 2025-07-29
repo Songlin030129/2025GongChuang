@@ -35,8 +35,8 @@ public:
     //云台角度闭环
     float tar_extension_distance = 0;
     float tar_rotate_angle = 0;
-    PIDController PID_Angle{ 25.0f, 0.0f, 0.0f, 0.0f, 3.0f, 0.0f };
-    PIDController PID_Omega{ 0.9f, 1.0f, 0.0f, 0.0f, 2.0f, 0.0f };
+    PIDController PID_Angle{ 20.0f, 0.0f, 0.0f, 0.0f, 3.0f, 0.0f };
+    PIDController PID_Omega{ 0.7f, 1.0f, 0.0f, 0.0f, 2.0f, 0.0f };
     PIDController PID_Distance{ 20000.0f, 0.0f, 0.0f, 0.0f, 500.0f, 0.0f };
 
     //云台摄像头定位闭环
@@ -49,13 +49,16 @@ public:
     LowPassFilter LPF_ERR_X{ 0.025f };
     LowPassFilter LPF_ERR_Y{ 0.025f };
     PIDController PID_CAM_X{ 0.002f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f };
-    PIDController PID_CAM_Y{ 0.9f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-    PIDController PID_CAM_Omega{ 1.5f, 6.0f, 0.0f, 0.0f, 3.0f, 0.0f };
+    PIDController PID_CAM_Omega{ 1.0f, 6.0f, 0.0f, 0.0f, 2.0f, 0.0f };
+    PIDController PID_CAM_Y{ 0.9f, 0.0f, 0.0f, 0.0f, 600.0f, 0.0f };
 
-    enum GIMBAL_CONTROL_MODE {
+    typedef enum GIMBAL_CONTROL_MODE {
         GIMBAL_POSITION_CONTROL = 0,
         GIMBAL_CAMERA_CONTROL = 1,
-    } gimbal_control_mode = GIMBAL_POSITION_CONTROL;
+    } gimbal_control_mode_e;
+
+    gimbal_control_mode_e gimbal_control_mode = GIMBAL_POSITION_CONTROL;
+    void Set_ControlMode(gimbal_control_mode_e _mode);
 
     uint8_t Camera_Calibrated();
     void Lift_Move(float _height);
@@ -68,7 +71,7 @@ public:
     uint8_t Jaw_Finished();
 
     // 旋转角度常量
-    static constexpr float ROTATE_ANGLE_IN_1 = -0.51f;
+    static constexpr float ROTATE_ANGLE_IN_1 = -0.49f;
     static constexpr float ROTATE_ANGLE_IN_2 = 0.0f;
     static constexpr float ROTATE_ANGLE_IN_3 = 0.51f;
     static constexpr float ROTATE_ANGLE_OUT_1 = -3.90f;
@@ -77,10 +80,10 @@ public:
     static constexpr float ROTATE_FINISHED_THRESHOLD = 0.05f;
 
     // 夹爪角度常量
-    static constexpr float JAW_ANGLE_CLOSE = 71.0f;
+    static constexpr float JAW_ANGLE_CLOSE = 73.0f;
     static constexpr float JAW_ANGLE_OPEN = 0.0f;
     static constexpr float JAW_INTERVAL = 200.0f;
-    static constexpr float JAW_FINISHED_THRESHOLD = 5.0f;
+    static constexpr float JAW_FINISHED_THRESHOLD = 6.0f;
 
     // 抬升距离常量
     static constexpr float LIFT_DISTANCE_TOP = 0.0f;
@@ -98,6 +101,7 @@ public:
     static constexpr float EXTENSION_DISTANCE_OUT_1 = 0.10f;
     static constexpr float EXTENSION_DISTANCE_OUT_2 = 0.03f;
     static constexpr float EXTENSION_DISTANCE_OUT_3 = 0.10f;
+    static constexpr float EXTENSION_DISTANCE_OUT_MATERIAL = 0.10f;
     static constexpr float EXTENSION_FINISHED_THRESHOLD = 0.005f;
 };
 

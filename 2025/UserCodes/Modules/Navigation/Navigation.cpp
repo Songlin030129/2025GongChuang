@@ -492,19 +492,44 @@ global_state_t Navigation::path_interpolation()
 
     if (ret.all_paths_interpolation_is_done == TRUE)
     {
-        inp_datas.clear();
-        paths.clear();
-        pre_v = 0;      // 前插补点速度 直线插补和圆弧插补中用到
-        pre_w_z = 0;    // 前插补点转速 下车转件插补中用到
-        dl = 0, ds = 0; // 微分直线长 微分弧长
-        dtheta = 0;     // 微分角度
-        acc_adjusted = 0;   // 直线 加速度调整值
-        w_acc_adjusted = 0; // 小车方向角 角加速度调整值
-        Last_Time = 0;
-        path_index = 0;
+        // inp_datas.clear();
+        // paths.clear();
+        // pre_v = 0;      // 前插补点速度 直线插补和圆弧插补中用到
+        // pre_w_z = 0;    // 前插补点转速 下车转件插补中用到
+        // dl = 0, ds = 0; // 微分直线长 微分弧长
+        // dtheta = 0;     // 微分角度
+        // acc_adjusted = 0;   // 直线 加速度调整值
+        // w_acc_adjusted = 0; // 小车方向角 角加速度调整值
+        // Last_Time = 0;
+        // path_index = 0;
+        clearPaths();
 
     }
 
     return ret;
 
+}
+
+void Navigation::clearPaths()
+{
+    // 释放所有动态分配的内存
+    for (auto& inp_data : inp_datas) {
+        if (inp_data != nullptr) {
+            vPortFree(inp_data);  // 释放内存
+            inp_data = nullptr;
+        }
+    }
+    inp_datas.clear();
+    paths.clear();
+
+    // 重置其他变量
+    pre_v = 0;
+    pre_w_z = 0;
+    dl = 0;
+    ds = 0;
+    dtheta = 0;
+    acc_adjusted = 0;
+    w_acc_adjusted = 0;
+    Last_Time = 0;
+    path_index = 0;
 }

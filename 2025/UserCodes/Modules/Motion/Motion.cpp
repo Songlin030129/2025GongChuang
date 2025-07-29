@@ -26,21 +26,21 @@ uint8_t Motion::load_from_material(uint8_t _loadDir, uint8_t _last)
     } state = load_stop_state;
     if (state == load_stop_state) {
         gimbal.Lift_Move(Gimbal::LIFT_DISTANCE_TOP);
-        gimbal.Extension_Move(Gimbal::EXTENSION_DISTANCE_OUT_2);
+        gimbal.Extension_Move(Gimbal::EXTENSION_DISTANCE_OUT_MATERIAL);
         gimbal.Rotate_Move(Gimbal::ROTATE_ANGLE_OUT_2);
         gimbal.Jaw_Move(Gimbal::JAW_ANGLE_OPEN);
         state = load_ready_state;
     }
     else if (state == load_ready_state) {
         if (gimbal.Rotate_Finished()) {
-            gimbal.gimbal_control_mode = Gimbal::GIMBAL_CAMERA_CONTROL;
+            gimbal.Set_ControlMode(Gimbal::GIMBAL_CAMERA_CONTROL);
             state = load_calibrate_state;
         }
     }
     else if (state == load_calibrate_state) {
         if (gimbal.Camera_Calibrated()) {
             state = load_huagui_down_state;
-            gimbal.gimbal_control_mode = Gimbal::GIMBAL_POSITION_CONTROL;
+            gimbal.Set_ControlMode(Gimbal::GIMBAL_POSITION_CONTROL);
             gimbal.Lift_Move(Gimbal::LIFT_DISTANCE_ZHUANPAN);
         }
     }
@@ -95,7 +95,7 @@ uint8_t Motion::load_from_material(uint8_t _loadDir, uint8_t _last)
         if (gimbal.Lift_Finished()) {
             if (!_last) {
                 gimbal.Rotate_Move(Gimbal::ROTATE_ANGLE_OUT_2);
-                gimbal.Extension_Move(Gimbal::EXTENSION_DISTANCE_OUT_2);
+                gimbal.Extension_Move(Gimbal::EXTENSION_DISTANCE_OUT_MATERIAL);
             }
             state = load_yuntai_out_state;
         }
@@ -147,14 +147,14 @@ uint8_t Motion::load_from_ground(uint8_t _loadDir, uint8_t _unloadDir, uint8_t _
     }
     else if (state == load_ready_state) {
         if (gimbal.Rotate_Finished()) {
-            gimbal.gimbal_control_mode = Gimbal::GIMBAL_CAMERA_CONTROL;
+            gimbal.Set_ControlMode(Gimbal::GIMBAL_CAMERA_CONTROL);
             state = load_calibrate_state;
         }
     }
     else if (state == load_calibrate_state) {
         if (gimbal.Camera_Calibrated()) {
             state = load_huagui_down_state;
-            gimbal.gimbal_control_mode = Gimbal::GIMBAL_POSITION_CONTROL;
+            gimbal.Set_ControlMode(Gimbal::GIMBAL_POSITION_CONTROL);
             gimbal.Lift_Move(Gimbal::LIFT_DISTANCE_GROUND);
         }
     }
@@ -324,12 +324,12 @@ uint8_t Motion::unload_to_ground()
     else if (state == unload_ready_state) {
         if (gimbal.Lift_Finished()) {
             state = unload_calibrate_state;
-            gimbal.gimbal_control_mode = Gimbal::GIMBAL_CAMERA_CONTROL;
+            gimbal.Set_ControlMode(Gimbal::GIMBAL_CAMERA_CONTROL);
         }
     }
     else if (state == unload_calibrate_state) {
         if (gimbal.Camera_Calibrated()) {
-            gimbal.gimbal_control_mode = Gimbal::GIMBAL_POSITION_CONTROL;
+            gimbal.Set_ControlMode(Gimbal::GIMBAL_POSITION_CONTROL);
             gimbal.Lift_Move(Gimbal::LIFT_DISTANCE_GROUND);
             state = unload_huagui_down_state;
         }
@@ -376,12 +376,12 @@ uint8_t Motion::unload_to_second()
     else if (state == unload_ready_state) {
         if (gimbal.Lift_Finished()) {
             state = unload_calibrate_state;
-            gimbal.gimbal_control_mode = Gimbal::GIMBAL_CAMERA_CONTROL;
+            gimbal.Set_ControlMode(Gimbal::GIMBAL_CAMERA_CONTROL);
         }
     }
     else if (state == unload_calibrate_state) {
         if (gimbal.Camera_Calibrated()) {
-            gimbal.gimbal_control_mode = Gimbal::GIMBAL_POSITION_CONTROL;
+            gimbal.Set_ControlMode(Gimbal::GIMBAL_POSITION_CONTROL);
             gimbal.Lift_Move(Gimbal::LIFT_DISTANCE_SECOND);
             state = unload_huagui_down_state;
         }
