@@ -29,14 +29,15 @@
             "locale": "cpp",
             "iosfwd": "c",
             "ios": "cpp",
-            "list": "cpp"
+            "list": "cpp",
+            "__bit_reference": "c"
         },
         "[yaml]": {
             "editor.insertSpaces": true,
             "editor.tabSize": 4,
             "editor.autoIndent": "advanced"
         },
-        "cortex-debug.variableUseNaturalFormat": false
+        "cortex-debug.variableUseNaturalFormat": true
     },
     "extensions": {
         "recommendations": [

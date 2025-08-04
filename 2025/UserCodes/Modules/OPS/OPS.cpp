@@ -90,6 +90,11 @@ void OPS::Data_Reset()
     HAL_UART_Transmit(huart, (uint8_t*)"ACT0", 5, 1000);
     vTaskDelay(200);
 }
+void OPS::Data_Calibrate()
+{
+    HAL_UART_Transmit(huart, (uint8_t*)"ACTR", 5, 1000);
+    vTaskDelay(200);
+}
 
 /**
  * @brief 串口空闲中断回调函数（DMA）

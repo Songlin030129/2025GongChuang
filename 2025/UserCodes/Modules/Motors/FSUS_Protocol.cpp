@@ -118,7 +118,8 @@ FSUS_STATUS FSUS_Protocol::recvPack() {
 
     while (true) {
         // 超时判断
-        if ((HAL_GetTick() - start_time) > FSUS_TIMEOUT_MS) {
+        uint32_t current_time = HAL_GetTick();
+        if ((current_time - start_time) > FSUS_TIMEOUT_MS) {
             return FSUS_STATUS_TIMEOUT;
         }
         // 等待有字节读入
@@ -173,6 +174,7 @@ FSUS_STATUS FSUS_Protocol::recvPack() {
                 return FSUS_STATUS_CHECKSUM_ERROR;
             }
             else {
+                uint32_t success_time = HAL_GetTick();
                 return FSUS_STATUS_SUCCESS;
             }
         }

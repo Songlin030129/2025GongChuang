@@ -33,6 +33,7 @@ extern "C"
 #define _3PI_2 4.71238898038f
 #define _PI_6 0.52359877559f
 #define _constrain(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
+#define _ABS(x) ((x) < 0 ? -(x) : (x))
 
     void Main();
 

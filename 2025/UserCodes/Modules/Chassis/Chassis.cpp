@@ -68,19 +68,19 @@ void Chassis::Pos_Rst()
 void Chassis::Loop_Control()
 {
     //获取时间间隔Ts
-    uint32_t currentTime = HAL_GetTick();
-    if (Last_Tick == 0)
+    uint32_t current_tick = HAL_GetTick();
+    if (last_tick == 0)
     {
-        Last_Tick = currentTime;
+        last_tick = current_tick;
         return;
     }
-    float Time_Step = (currentTime - Last_Tick) / 1000.0f;
-    Last_Tick = currentTime;
+    dt = (current_tick - last_tick) / 1000.0f;
+    last_tick = current_tick;
 
     static float Last_Pos_X = 0, Last_Pos_Y = 0, Last_Yaw = 0;
-    Vel_X = (ops.Pos_X - Last_Pos_X) / Time_Step;
-    Vel_Y = (ops.Pos_Y - Last_Pos_Y) / Time_Step;
-    Vel_A = (ops.Yaw - Last_Yaw) / Time_Step;
+    Vel_X = (ops.Pos_X - Last_Pos_X) / dt;
+    Vel_Y = (ops.Pos_Y - Last_Pos_Y) / dt;
+    Vel_A = (ops.Yaw - Last_Yaw) / dt;
     Last_Pos_X = ops.Pos_X;
     Last_Pos_Y = ops.Pos_Y;
     Last_Yaw = ops.Yaw;
@@ -92,10 +92,15 @@ void Chassis::Loop_Control()
         chassis.Set(Tar_Vel_X, Tar_Vel_Y, Tar_Vel_A, ops.Yaw);
     }
     else {
-        chassis.Set(0, 0, 0, ops.Yaw);
+        dji_mot1.setCurrent(0.0f);
+        dji_mot2.setCurrent(0.0f);
+        dji_mot3.setCurrent(0.0f);
+        dji_mot4.setCurrent(0.0f);
+        dji_motor_group.canSendData();
+
     }
     static float cnt = 0.0f;
-    cnt += Time_Step;
+    cnt += dt;
     if (cnt >= 1) {
         cnt = 0.0f;
         led1.Toggle();

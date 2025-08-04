@@ -1,7 +1,7 @@
 #ifndef __ZDTMOTOR_H
 #define __ZDTMOTOR_H
 #include "common_inc.h"
-#define min(a, b)                 ((a) < (b) ? (a) : (b))          // 取最小值
+#define zdt_min(a, b)                 ((a) < (b) ? (a) : (b))          // 取最小值
 #define My_ABS(temp)              ((temp) >= 0 ? (temp) : -(temp)) // 取绝对值
 
 #define COMMAND_ENABLE_DISABLE    0xF3 // 使能/失能命令

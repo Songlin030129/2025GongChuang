@@ -57,7 +57,7 @@ void Navigation::addPath(path_t* _path)
     default:
         break;
     }
-    if (fabs(path->arc.radius) < Round_Error) // ****直线插补参数初始化****
+    if (navi_abs(path->arc.radius) < Round_Error) // ****直线插补参数初始化****
     {
         // 计算轨迹角度 起始点和终止点连线 L 相对于x轴的角度 路径角度
         inp_data->path_theta = atan2(path->end_pos.y - path->start_pos.y, path->end_pos.x - path->start_pos.x);
@@ -104,7 +104,7 @@ void Navigation::addPath(path_t* _path)
     inp_data->vel = path->v_start;
     inp_data->w_z = path->w_start;
     inp_data->theta = path->start_pos.theta;
-    inp_data->total_theta = fabs(path->end_pos.theta - path->start_pos.theta); // 自转角度插补 小车方向角 总转角
+    inp_data->total_theta = navi_abs(path->end_pos.theta - path->start_pos.theta); // 自转角度插补 小车方向角 总转角
     inp_data->brake_theta = 0;
     inp_data->past_theta = 0;
     inp_data->residue_theta = (inp_data->total_theta); // 剩余弧度用绝对值表示
@@ -140,7 +140,7 @@ void Navigation::addPaths(path_t* _paths, uint8_t _size)
 
 global_state_t Navigation::path_interpolation()
 {
-    global_state_t ret = { 0 };
+    global_state_t ret = {};
     //获取时间间隔Ts
     uint32_t currentTime = HAL_GetTick();
     if (Last_Time == 0)
@@ -158,13 +158,13 @@ global_state_t Navigation::path_interpolation()
         path_index++;
     high_constrain(path_index, paths.size() - 1); // 上限 限幅
 
-    if (fabs(paths[path_index]->arc.radius) < Round_Error) // 如果轨迹的半径为0 则进入直线插补
+    if (navi_abs(paths[path_index]->arc.radius) < Round_Error) // 如果轨迹的半径为0 则进入直线插补
     {
         if (inp_datas[path_index]->residue_distance > Round_Error) // 剩余距离大于0
         {
             dl = 0; // dl先清 0
             pre_v = inp_datas[path_index]->vel;
-            inp_datas[path_index]->brake_distance = fabs(pow(inp_datas[path_index]->vel, 2) - pow(paths[path_index]->v_end, 2)) / (2 * ACC);
+            inp_datas[path_index]->brake_distance = navi_abs(pow(inp_datas[path_index]->vel, 2) - pow(paths[path_index]->v_end, 2)) / (2 * ACC);
             // 剩余距离大于理论刹车距离 将速度逐步的调整为给定的目标(最大)速度 可以加速、减速、匀速
             if (inp_datas[path_index]->residue_distance - inp_datas[path_index]->brake_distance > Round_Error)
             {
@@ -172,13 +172,13 @@ global_state_t Navigation::path_interpolation()
                 {
                     inp_datas[path_index]->vel += ACC * Time_Step;
                     high_constrain(inp_datas[path_index]->vel, paths[path_index]->v_target);
-                    dl = fabs(pow(inp_datas[path_index]->vel, 2) - pow(pre_v, 2)) / (2 * ACC);
+                    dl = navi_abs(pow(inp_datas[path_index]->vel, 2) - pow(pre_v, 2)) / (2 * ACC);
                 }
                 else if (inp_datas[path_index]->vel > paths[path_index]->v_target) // 减速
                 {
                     inp_datas[path_index]->vel -= ACC * Time_Step;
                     low_constrain(inp_datas[path_index]->vel, paths[path_index]->v_target);
-                    dl = fabs(pow(inp_datas[path_index]->vel, 2) - pow(pre_v, 2)) / (2 * ACC);
+                    dl = navi_abs(pow(inp_datas[path_index]->vel, 2) - pow(pre_v, 2)) / (2 * ACC);
                 }
                 else // 匀速(达到目标速度)
                 {
@@ -190,18 +190,18 @@ global_state_t Navigation::path_interpolation()
             else
             {
                 // 更改加速度，使小车可以在终点速度恰好为要求的速度
-                acc_adjusted = fabs(pow(inp_datas[path_index]->vel, 2) - pow(paths[path_index]->v_end, 2)) / (2 * inp_datas[path_index]->residue_distance);
+                acc_adjusted = navi_abs(pow(inp_datas[path_index]->vel, 2) - pow(paths[path_index]->v_end, 2)) / (2 * inp_datas[path_index]->residue_distance);
                 if (inp_datas[path_index]->vel < paths[path_index]->v_end) // 加速
                 {
                     inp_datas[path_index]->vel += acc_adjusted * Time_Step;
                     high_constrain(inp_datas[path_index]->vel, paths[path_index]->v_end);
-                    dl = fabs(pow(inp_datas[path_index]->vel, 2) - pow(pre_v, 2)) / (2 * acc_adjusted);
+                    dl = navi_abs(pow(inp_datas[path_index]->vel, 2) - pow(pre_v, 2)) / (2 * acc_adjusted);
                 }
                 else if (inp_datas[path_index]->vel > paths[path_index]->v_end) // 减速
                 {
                     inp_datas[path_index]->vel -= acc_adjusted * Time_Step;
                     low_constrain(inp_datas[path_index]->vel, paths[path_index]->v_end);
-                    dl = fabs(pow(inp_datas[path_index]->vel, 2) - pow(pre_v, 2)) / (2 * acc_adjusted);
+                    dl = navi_abs(pow(inp_datas[path_index]->vel, 2) - pow(pre_v, 2)) / (2 * acc_adjusted);
                 }
                 else // 匀速(达到目标速度之后)
                 {
@@ -244,7 +244,7 @@ global_state_t Navigation::path_interpolation()
         {
             ds = 0;
             pre_v = inp_datas[path_index]->vel;
-            inp_datas[path_index]->brake_distance = fabs(pow(inp_datas[path_index]->vel, 2) - pow(paths[path_index]->v_end, 2)) / (ACC * 2);
+            inp_datas[path_index]->brake_distance = navi_abs(pow(inp_datas[path_index]->vel, 2) - pow(paths[path_index]->v_end, 2)) / (ACC * 2);
             // 剩余角度大于理论刹车角度 将速度逐步的调整为给定的目标(最大)速度 可以加速、减速、匀速
             if (inp_datas[path_index]->residue_distance - inp_datas[path_index]->brake_distance > Round_Error)
             {
@@ -252,13 +252,13 @@ global_state_t Navigation::path_interpolation()
                 {
                     inp_datas[path_index]->vel += ACC * Time_Step;
                     high_constrain(inp_datas[path_index]->vel, paths[path_index]->v_target);
-                    ds = fabs(pow(inp_datas[path_index]->vel, 2) - pow(pre_v, 2)) / (2 * ACC);
+                    ds = navi_abs(pow(inp_datas[path_index]->vel, 2) - pow(pre_v, 2)) / (2 * ACC);
                 }
                 else if (inp_datas[path_index]->vel > paths[path_index]->v_target) // 减速
                 {
                     inp_datas[path_index]->vel -= ACC * Time_Step;
                     low_constrain(inp_datas[path_index]->vel, paths[path_index]->v_target);
-                    ds = fabs(pow(inp_datas[path_index]->vel, 2) - pow(pre_v, 2)) / (2 * ACC);
+                    ds = navi_abs(pow(inp_datas[path_index]->vel, 2) - pow(pre_v, 2)) / (2 * ACC);
                 }
                 else // 匀速(达到目标速度)
                 {
@@ -270,18 +270,18 @@ global_state_t Navigation::path_interpolation()
             else
             {
                 // 更改加速度，使小车可以在终点速度恰好为要求的速度
-                acc_adjusted = fabs(pow(inp_datas[path_index]->vel, 2) - pow(paths[path_index]->v_end, 2)) / (2 * inp_datas[path_index]->residue_distance);
+                acc_adjusted = navi_abs(pow(inp_datas[path_index]->vel, 2) - pow(paths[path_index]->v_end, 2)) / (2 * inp_datas[path_index]->residue_distance);
                 if (inp_datas[path_index]->vel < paths[path_index]->v_end) // 加速
                 {
                     inp_datas[path_index]->vel += acc_adjusted * Time_Step;
                     high_constrain(inp_datas[path_index]->vel, paths[path_index]->v_end);
-                    ds = fabs(pow(inp_datas[path_index]->vel, 2) - pow(pre_v, 2)) / (2 * acc_adjusted);
+                    ds = navi_abs(pow(inp_datas[path_index]->vel, 2) - pow(pre_v, 2)) / (2 * acc_adjusted);
                 }
                 else if (inp_datas[path_index]->vel > paths[path_index]->v_end) // 减速
                 {
                     inp_datas[path_index]->vel -= acc_adjusted * Time_Step;
                     low_constrain(inp_datas[path_index]->vel, paths[path_index]->v_end);
-                    ds = fabs(pow(inp_datas[path_index]->vel, 2) - pow(pre_v, 2)) / (2 * acc_adjusted);
+                    ds = navi_abs(pow(inp_datas[path_index]->vel, 2) - pow(pre_v, 2)) / (2 * acc_adjusted);
                 }
                 else // 匀速(达到目标速度之后)
                 {
@@ -398,7 +398,7 @@ global_state_t Navigation::path_interpolation()
     {
         dtheta = 0;
         pre_w_z = inp_datas[path_index]->w_z;
-        inp_datas[path_index]->brake_theta = fabs(pow(inp_datas[path_index]->w_z, 2) - pow(paths[path_index]->w_end, 2)) / (W_ACC * 2);
+        inp_datas[path_index]->brake_theta = navi_abs(pow(inp_datas[path_index]->w_z, 2) - pow(paths[path_index]->w_end, 2)) / (W_ACC * 2);
         // 剩余角度大于理论刹车角度 将速度逐步的调整为给定的目标(最大)角速度 可以加速、减速、匀速
         if (inp_datas[path_index]->residue_theta - inp_datas[path_index]->brake_theta > Round_Error)
         {
@@ -406,36 +406,36 @@ global_state_t Navigation::path_interpolation()
             {
                 inp_datas[path_index]->w_z += W_ACC * Time_Step;
                 high_constrain(inp_datas[path_index]->w_z, paths[path_index]->w_target);
-                dtheta = fabs(pow(inp_datas[path_index]->w_z, 2) - pow(pre_w_z, 2)) / (2 * W_ACC);
+                dtheta = navi_abs(pow(inp_datas[path_index]->w_z, 2) - pow(pre_w_z, 2)) / (2 * W_ACC);
             }
             else if (inp_datas[path_index]->w_z > paths[path_index]->w_target) // 减速
             {
                 inp_datas[path_index]->w_z -= W_ACC * Time_Step;
                 low_constrain(inp_datas[path_index]->w_z, paths[path_index]->w_target);
-                dtheta = fabs(pow(inp_datas[path_index]->w_z, 2) - pow(pre_w_z, 2)) / (2 * W_ACC);
+                dtheta = navi_abs(pow(inp_datas[path_index]->w_z, 2) - pow(pre_w_z, 2)) / (2 * W_ACC);
             }
             else // 匀速(达到目标速度)
             {
                 inp_datas[path_index]->w_z = paths[path_index]->w_target;
-                dtheta = fabs(inp_datas[path_index]->w_z) * Time_Step;
+                dtheta = navi_abs(inp_datas[path_index]->w_z) * Time_Step;
             }
         }
         // 剩余角度小于理论刹车角度 将角速度慢慢调整为 给定的终点角速度
         else
         {
             // 更改加速度，使小车可以在终点速度恰好为要求的速度
-            w_acc_adjusted = fabs(pow(inp_datas[path_index]->w_z, 2) - pow(paths[path_index]->w_end, 2)) / (2 * inp_datas[path_index]->residue_theta);
+            w_acc_adjusted = navi_abs(pow(inp_datas[path_index]->w_z, 2) - pow(paths[path_index]->w_end, 2)) / (2 * inp_datas[path_index]->residue_theta);
             if (inp_datas[path_index]->w_z < paths[path_index]->w_end) // 加速
             {
                 inp_datas[path_index]->w_z += w_acc_adjusted * Time_Step;
                 high_constrain(inp_datas[path_index]->w_z, paths[path_index]->w_end);
-                dtheta = fabs(pow(inp_datas[path_index]->w_z, 2) - pow(pre_w_z, 2)) / (2 * w_acc_adjusted);
+                dtheta = navi_abs(pow(inp_datas[path_index]->w_z, 2) - pow(pre_w_z, 2)) / (2 * w_acc_adjusted);
             }
             else if (inp_datas[path_index]->w_z > paths[path_index]->w_end) // 减速
             {
                 inp_datas[path_index]->w_z -= w_acc_adjusted * Time_Step;
                 low_constrain(inp_datas[path_index]->w_z, paths[path_index]->w_end);
-                dtheta = fabs(pow(inp_datas[path_index]->w_z, 2) - pow(pre_w_z, 2)) / (2 * w_acc_adjusted);
+                dtheta = navi_abs(pow(inp_datas[path_index]->w_z, 2) - pow(pre_w_z, 2)) / (2 * w_acc_adjusted);
             }
             else // 匀速(达到目标速度)
             {

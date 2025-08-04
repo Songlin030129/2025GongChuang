@@ -14,6 +14,7 @@ extern uint8_t second_round_color1, second_round_color2, second_round_color3;
 void HMI::Init(UART_HandleTypeDef* huart)
 {
     this->huart = huart;
+    this->valid_data_count = 0;  // 初始化计数器
     HAL_UARTEx_ReceiveToIdle_DMA(huart, (uint8_t*)this->RxBuffer, HMI_RX_BUFFER_SIZE_MAX);
 }
 
@@ -116,20 +117,41 @@ void HMI::UartReceive_IDLE_DMA_Callback(UART_HandleTypeDef* huart, uint16_t Size
             }
             else if (rxdata.type == HMI::DATA_TYPE_TARGET_ERR)
             {
+                // 检查数据是否有效
                 if (rxdata.f_data1 <= 9000.0f && rxdata.f_data2 <= 9000.0f)
                 {
-                    gimbal.camera_data_enable = 1;
-                    gimbal.camera_detect_color = rxdata.u_data1;
-                    gimbal.camera_raw_x_err = rxdata.f_data1;
-                    gimbal.camera_raw_y_err = rxdata.f_data2;
+                    // 有效数据，计数器递增
+                    if (valid_data_count < VALID_DATA_THRESHOLD)
+                    {
+                        valid_data_count++;
+                    }
+
+                    // 连续检测到足够次数的有效数据后才启用
+                    if (valid_data_count >= VALID_DATA_THRESHOLD)
+                    {
+                        gimbal.camera_data_valid = 1;
+                        gimbal.camera_detect_color = rxdata.u_data1;
+                        gimbal.camera_raw_x_err = rxdata.f_data1;
+                        gimbal.camera_raw_y_err = rxdata.f_data2;
+                    }
+                    else
+                    {
+                        // 还没达到阈值，暂时不启用但更新数据
+                        gimbal.camera_data_valid = 0;
+                        gimbal.camera_detect_color = rxdata.u_data1;
+                        gimbal.camera_raw_x_err = rxdata.f_data1;
+                        gimbal.camera_raw_y_err = rxdata.f_data2;
+                    }
                 }
                 else
                 {
-                    gimbal.camera_data_enable = 0;
+                    // 无效数据，重置计数器和状态
+                    valid_data_count = 0;
+                    gimbal.camera_data_valid = 0;
+                    gimbal.camera_raw_x_err = 0;
+                    gimbal.camera_raw_y_err = 0;
                 }
             }
-
-            // recvlist.push_back(rxdata);
         }
         HAL_UARTEx_ReceiveToIdle_DMA(huart, (uint8_t*)this->RxBuffer, HMI_RX_BUFFER_SIZE_MAX);
     }

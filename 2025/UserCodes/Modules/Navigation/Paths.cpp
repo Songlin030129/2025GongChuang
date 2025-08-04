@@ -7,7 +7,7 @@ uint8_t Paths::task_from_start_to_qrcode()
 {
     uint8_t ret = 0;
     static uint8_t NAV_STATE = 0; // 状态机索引
-    static global_state_t global_state = { 0 };
+    static global_state_t global_state = {};
     switch (NAV_STATE)
     {
     case 0: //********** 初始化状态 **********
@@ -35,7 +35,7 @@ uint8_t Paths::task_from_start_to_qrcode()
         if (global_state.all_paths_interpolation_is_done == 1)
         {
             ret = 1;
-            global_state = { 0 };
+            global_state = {};
             NAV_STATE = 0;
         };
         break;
@@ -49,7 +49,7 @@ uint8_t Paths::task_from_qrcode_to_material()
 {
     uint8_t ret = 0;
     static uint8_t NAV_STATE = 0; // 状态机索引
-    static global_state_t global_state = { 0 };
+    static global_state_t global_state = {};
     switch (NAV_STATE)
     {
     case 0: //********** 初始化状态 **********
@@ -76,7 +76,7 @@ uint8_t Paths::task_from_qrcode_to_material()
         if (global_state.all_paths_interpolation_is_done == 1)
         {
             ret = 1;
-            global_state = { 0 };
+            global_state = {};
             NAV_STATE = 0;
         };
         break;
@@ -90,7 +90,7 @@ uint8_t Paths::task_from_material_to_process()
 {
     uint8_t ret = 0;
     static uint8_t NAV_STATE = 0; // 状态机索引
-    static global_state_t global_state = { 0 };
+    static global_state_t global_state = {};
     switch (NAV_STATE)
     {
     case 0: //********** 初始化状态 **********
@@ -117,7 +117,7 @@ uint8_t Paths::task_from_material_to_process()
         if (global_state.all_paths_interpolation_is_done == 1)
         {
             ret = 1;
-            global_state = { 0 };
+            global_state = {};
             NAV_STATE = 0;
         };
         break;
@@ -131,7 +131,7 @@ uint8_t Paths::task_from_process_to_storage()
 {
     uint8_t ret = 0;
     static uint8_t NAV_STATE = 0; // 状态机索引
-    static global_state_t global_state = { 0 };
+    static global_state_t global_state = {};
     switch (NAV_STATE)
     {
     case 0: //********** 初始化状态 **********
@@ -159,7 +159,7 @@ uint8_t Paths::task_from_process_to_storage()
         if (global_state.all_paths_interpolation_is_done == 1)
         {
             ret = 1;
-            global_state = { 0 };
+            global_state = {};
             NAV_STATE = 0;
         };
         break;
@@ -173,7 +173,7 @@ uint8_t Paths::task_from_storage_to_material()
 {
     uint8_t ret = 0;
     static uint8_t NAV_STATE = 0; // 状态机索引
-    static global_state_t global_state = { 0 };
+    static global_state_t global_state = {};
     switch (NAV_STATE)
     {
     case 0: //********** 初始化状态 **********
@@ -200,7 +200,7 @@ uint8_t Paths::task_from_storage_to_material()
         if (global_state.all_paths_interpolation_is_done == 1)
         {
             ret = 1;
-            global_state = { 0 };
+            global_state = {};
             NAV_STATE = 0;
         };
         break;
@@ -214,7 +214,7 @@ uint8_t Paths::task_from_storage_to_stop()
 {
     uint8_t ret = 0;
     static uint8_t NAV_STATE = 0; // 状态机索引
-    static global_state_t global_state = { 0 };
+    static global_state_t global_state = {};
     switch (NAV_STATE)
     {
     case 0: //********** 初始化状态 **********
@@ -241,7 +241,7 @@ uint8_t Paths::task_from_storage_to_stop()
         if (global_state.all_paths_interpolation_is_done == 1)
         {
             ret = 1;
-            global_state = { 0 };
+            global_state = {};
             NAV_STATE = 0;
         };
         break;

@@ -30,6 +30,8 @@ public:
 
     void Data_Reset();
 
+    void Data_Calibrate();
+
     //   private:
     uint8_t RxBuffer[OPS_RX_BUFFER_SIZE_MAX];
     UART_HandleTypeDef* huart;

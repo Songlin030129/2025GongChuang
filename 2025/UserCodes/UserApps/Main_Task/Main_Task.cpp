@@ -29,40 +29,41 @@ state_func_t state_functions[] = {
     state_unload_storage,
     state_move_to_stop
 };
-uint8_t state = 0;
 
+uint8_t finished = 0;
+uint8_t jaw_finished = 0;
+uint8_t lift_finished = 0;
+uint8_t rotate_finished = 0;
+uint8_t extension_finished = 0;
+uint8_t test_enable = 0;
 void Main_Task()
 {
-    led1.Init(LED1_GPIO_Port, LED1_Pin);
-    led2.Init(LED2_GPIO_Port, LED2_Pin);
     hmi.Init(&huart1);
     lcd.Init(&huart5);
     vTaskDelay(100);
 
     while (1)
     {
+        finished = gimbal.All_Move_Finished();
+        jaw_finished = gimbal.Jaw_Finished();
+        lift_finished = gimbal.Lift_Finished();
+        rotate_finished = gimbal.Rotate_Finished();
+        extension_finished = gimbal.Extension_Finished();
         system_state_t next_state = state_functions[global_state]();
         if (next_state != global_state) {
             last_state = global_state;
             global_state = next_state;
         }
-
         vTaskDelay(20);
-        static int cnt = 0;
-        cnt++;
-        if (cnt >= 200) {
-            cnt = 0;
-            // led1.Toggle();
-            // led2.Toggle();
-            // printf("global_state:%d\r\n", (int)global_state);
-        }
     }
 }
 
 // 空闲状态
 system_state_t state_idle() {
-    if (run_enable >= 1) {
+    if (run_enable >= 0.5f) {
         run_enable = 0;
+        gimbal.Rotate_Move(gimbal.ROTATE_ANGLE_OUT_2);
+        gimbal.Extension_Move(gimbal.EXTENSION_DISTANCE_OUT_MATERIAL);
         printf("START!!!\r\n");
         printf("moving to qrcode...\r\n");
         return STATE_MOVE_TO_QRCODE;
@@ -170,16 +171,12 @@ system_state_t state_unload_process()
     static uint8_t temp_state = 0;
     static uint8_t process_index = 1;
     if (temp_state == 0) {
-        uint8_t temp = motion.get_from_car(process_index, colors[process_index - 1]);
-        if (temp == 1) {
-            printf("get block:%d...\r\n", colors[process_index - 1]);
-            hmi.Set_Detect_Mode(HMI::DETECT_MODE_TARGET, colors[process_index - 1]);
-            vTaskDelay(100);
-            temp_state = 1;
-        }
+        hmi.Set_Detect_Mode(HMI::DETECT_MODE_TARGET, colors[process_index - 1]);
+        vTaskDelay(100);
+        temp_state = 1;
     }
     else if (temp_state == 1) {
-        uint8_t temp = motion.unload_to_ground();
+        uint8_t temp = motion.unload_to_ground(process_index, colors[process_index - 1]);
         if (temp == 1) {
             printf("unload block:%d...\r\n", colors[process_index - 1]);
             if (process_index < 3) {
@@ -208,10 +205,10 @@ system_state_t state_load_process()
     }
     else if (temp_state == 1) {
         uint8_t temp = 0;
-        if (process_index != 3)
-            temp = motion.load_from_ground(process_index, colors[process_index - 1], 0);
+        if (process_index < 3)
+            temp = motion.load_from_ground(process_index, colors[process_index - 1], 1, colors[process_index], 0);
         else if (process_index == 3)
-            temp = motion.load_from_ground(process_index, colors[process_index - 1], 1);
+            temp = motion.load_from_ground(process_index, colors[process_index - 1], 0, 0, 0);
         if (temp == 1) {
             printf("load block:%d...\r\n", colors[process_index - 1]);
             if (process_index < 3) {
@@ -244,23 +241,19 @@ system_state_t state_unload_storage()
     static uint8_t temp_state = 0;
     static uint8_t storage_index = 1;
     if (temp_state == 0) {
-        uint8_t temp = motion.get_from_car(storage_index, colors[storage_index - 1]);
-        if (temp == 1) {
-            printf("get block:%d...\r\n", colors[storage_index - 1]);
-            if (run_round == 1)
-                hmi.Set_Detect_Mode(HMI::DETECT_MODE_TARGET, colors[storage_index - 1]);
-            else if (run_round == 2)
-                hmi.Set_Detect_Mode(HMI::DETECT_MODE_BLOCK, colors[storage_index - 1]);
-            vTaskDelay(100);
-            temp_state = 1;
-        }
+        if (run_round == 1)
+            hmi.Set_Detect_Mode(HMI::DETECT_MODE_TARGET, colors[storage_index - 1]);
+        else if (run_round == 2)
+            hmi.Set_Detect_Mode(HMI::DETECT_MODE_BLOCK, colors[storage_index - 1]);
+        vTaskDelay(100);
+        temp_state = 1;
     }
     else if (temp_state == 1) {
         uint8_t temp = 0;
         if (run_round == 1)
-            temp = motion.unload_to_ground();
+            temp = motion.unload_to_ground(storage_index, colors[storage_index - 1]);
         else if (run_round == 2)
-            temp = motion.unload_to_second();
+            temp = motion.unload_to_second(storage_index, colors[storage_index - 1]);
         if (temp == 1) {
             printf("unload block:%d...\r\n", colors[storage_index - 1]);
             if (storage_index < 3) {
@@ -280,9 +273,8 @@ system_state_t state_unload_storage()
                 }
                 else if (run_round == 2) {
                     printf("finish round 2, moving to start area...\r\n");
-                    gimbal.Extension_Move(Gimbal::EXTENSION_DISTANCE_IN_2);
-                    gimbal.Lift_Move(Gimbal::LIFT_DISTANCE_TOP);
-                    gimbal.Rotate_Move(Gimbal::ROTATE_ANGLE_IN_2);
+                    gimbal.Extension_Move(gimbal.EXTENSION_DISTANCE_IN_2);
+                    gimbal.Rotate_Move(gimbal.ROTATE_ANGLE_IN_2);
                     return STATE_MOVE_TO_STOP;
                 }
             }

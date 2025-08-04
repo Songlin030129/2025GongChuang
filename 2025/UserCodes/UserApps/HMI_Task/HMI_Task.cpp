@@ -95,14 +95,14 @@ void HMI_Task()
                 {
                     if (it->f_data1 <= 9000.0f && it->f_data2 <= 9000.0f)
                     {
-                        gimbal.camera_data_enable = 1;
+                        gimbal.camera_data_valid = 1;
                         gimbal.camera_detect_color = it->u_data1;
                         gimbal.camera_raw_x_err = it->f_data1;
                         gimbal.camera_raw_y_err = it->f_data2;
                     }
                     else
                     {
-                        gimbal.camera_data_enable = 0;
+                        gimbal.camera_data_valid = 0;
                     }
                     hmi.recvlist.erase(it);
                 }

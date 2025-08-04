@@ -39,6 +39,9 @@ public:
 
     void Set_Detect_Mode(uint8_t _mode, uint8_t _color);
 
+    uint8_t valid_data_count;        // 连续有效数据计数器
+    static const uint8_t VALID_DATA_THRESHOLD = 10;  // 有效数据阈值
+
     std::list<data_packet_t> recvlist;
 
     data_packet_t rxdata, txdata;

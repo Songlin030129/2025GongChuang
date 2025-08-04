@@ -21,7 +21,7 @@ void ZDTMotor::CAN_Send_Data(uint8_t _Motor_ID, uint8_t* _Data, uint8_t _Size)
         }
         // 填充TxData
         TxData[0] = Command;
-        for (uint8_t i = 0; i < min(7, _Size - segment * 8); i++) {
+        for (uint8_t i = 0; i < zdt_min(7, _Size - segment * 8); i++) {
             TxData[i + 1] = _Data[i - segment + 1 + segment * 8];
         }
         // 设置TxHeader
@@ -29,7 +29,7 @@ void ZDTMotor::CAN_Send_Data(uint8_t _Motor_ID, uint8_t* _Data, uint8_t _Size)
         TxHeader.ExtId = (_Motor_ID << 8) | segment;
         TxHeader.IDE = CAN_ID_EXT;
         TxHeader.RTR = CAN_RTR_DATA;
-        TxHeader.DLC = min(8, _Size - segment * 8);
+        TxHeader.DLC = zdt_min(8, _Size - segment * 8);
         TxHeader.TransmitGlobalTime = DISABLE;
 
         // 发送数据
@@ -53,7 +53,7 @@ void ZDTMotor::Recv_Callback(CAN_HandleTypeDef* _hcan, CAN_RxHeaderTypeDef RxHea
             if (RecvBuf[RxHeader.DLC - 1] == DATA_FRAME_END) {
                 Clear_Cache();
                 Recv_Cache[0] = RxHeader.ExtId >> 8;
-                for (int i = 0; i < RxHeader.DLC; i++) {
+                for (uint32_t i = 0; i < RxHeader.DLC; i++) {
                     Recv_Cache[i + 1] = RecvBuf[i];
                 }
                 Recv_Length = RxHeader.DLC + 1;
@@ -104,7 +104,7 @@ void ZDTMotor::Init(CAN_HandleTypeDef* _hcan, uint8_t _Motor_ID, DIRECTION _Dire
     static uint8_t init_state = 0;
     if (init_state == 0)
     {
-        CAN_FilterTypeDef can_Filter = { 0 };
+        CAN_FilterTypeDef can_Filter = {};
 
         can_Filter.FilterIdHigh = 0;
         can_Filter.FilterIdLow = 0;

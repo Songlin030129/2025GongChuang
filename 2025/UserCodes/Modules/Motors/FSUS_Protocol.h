@@ -20,7 +20,7 @@
 // 注: FSUS是Fashion Star Uart Servo的缩写
 #define FSUS_RX_BUFFER_SIZE_MAX 100
 // 串口通讯超时设置
-#define FSUS_TIMEOUT_MS 100
+#define FSUS_TIMEOUT_MS 5
 // 舵机用户自定义数据块的大小 单位Byte
 #define FSUS_SERVO_BATCH_DATA_SIZE 32
 // 封包的长度

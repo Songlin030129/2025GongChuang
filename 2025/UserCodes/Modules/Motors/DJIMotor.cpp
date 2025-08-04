@@ -32,7 +32,7 @@ void DJIMotor::Recv_Callback(CAN_HandleTypeDef* _hcan, CAN_RxHeaderTypeDef RxHea
 {
     if (_hcan == hcan)
     {
-        if (RxHeader.StdId == 0x200 + motor_id)
+        if (RxHeader.StdId == 0x200U + motor_id)
         {
             raw_angle = (RecvBuf[0] << 8) | RecvBuf[1];
             raw_velocity = (RecvBuf[2] << 8) | RecvBuf[3] * dir;
@@ -85,7 +85,7 @@ void DJIMotorGroup::init(CAN_HandleTypeDef* _hcan)
     static uint8_t init_state = 0;
     if (init_state == 0)
     {
-        CAN_FilterTypeDef can_Filter = { 0 };
+        CAN_FilterTypeDef can_Filter = {};
 
         can_Filter.FilterIdHigh = 0;
         can_Filter.FilterIdLow = 0;
@@ -110,7 +110,7 @@ uint8_t DJIMotorGroup::addMotor(DJIMotor* _motor, Motor_Type _type, uint8_t _id,
 {
     if (motors.size() == 8 || _id > 8)
         return 0;
-    for (int i = 0; i < motors.size(); i++)
+    for (size_t i = 0; i < motors.size(); i++)
     {
         if (_id == motors[i]->motor_id) return 0;
     }
@@ -136,7 +136,7 @@ uint8_t DJIMotorGroup::addMotor(DJIMotor* _motor, Motor_Type _type, uint8_t _id,
 
 void DJIMotorGroup::canSendData()
 {
-    for (int i = 0; i < motors.size(); i++)
+    for (size_t i = 0; i < motors.size(); i++)
     {
         if (motors[i]->motor_id <= 4)
         {
@@ -159,7 +159,7 @@ void DJIMotorGroup::canSendData()
 
     HAL_CAN_AddTxMessage(hcan, &TxHeader, data1, &TxMailbox);
     vTaskDelay(1);
-    for (int i = 0; i < motors.size(); i++)
+    for (size_t i = 0; i < motors.size(); i++)
     {
         if (motors[i]->motor_id > 4)
         {

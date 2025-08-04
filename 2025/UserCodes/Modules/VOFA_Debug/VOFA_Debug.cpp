@@ -142,7 +142,7 @@ void VOFA_Debug::Run_Debug()
     if (RxFlag > 0)
     {
         uint8_t Command_Found = 0;
-        for (int i = 0; i < ValueCommanderList.size(); i++)
+        for (size_t i = 0; i < ValueCommanderList.size(); i++)
         {
             if (RxCommand == ValueCommanderList[i].command)
             {
@@ -164,7 +164,7 @@ void VOFA_Debug::Run_Debug()
                 }
             }
         }
-        for (int i = 0; i < FunctionCommanderList.size(); i++)
+        for (size_t i = 0; i < FunctionCommanderList.size(); i++)
         {
             if (RxCommand == FunctionCommanderList[i].command)
             {

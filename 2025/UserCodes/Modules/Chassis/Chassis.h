@@ -6,7 +6,6 @@
 #include "math.h"
 #include "ops.h"
 #include "PID.h"
-#include "HWT101.h"
 #define WHEEL_DISTANCE_TO_CENTER 0.15f
 #define WHEEL_RADIUS 0.038f
 struct CarVel_s
@@ -55,7 +54,8 @@ public:
 
     float Tar_Pos_X, Tar_Pos_Y, Tar_Angle;
     uint8_t control_enable;
-    uint32_t Last_Tick;
+    uint32_t last_tick;
+    float dt;
 
 };
 extern Chassis chassis;

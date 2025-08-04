@@ -293,7 +293,6 @@
           "UserCodes/Modules/Algorithm",
           "UserCodes/Modules/Chassis",
           "UserCodes/Modules/HMI",
-          "UserCodes/Modules/HWT101",
           "UserCodes/Modules/KEY",
           "UserCodes/Modules/LCD",
           "UserCodes/Modules/LED",
