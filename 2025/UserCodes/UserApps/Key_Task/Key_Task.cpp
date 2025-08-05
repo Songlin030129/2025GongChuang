@@ -1,12 +1,12 @@
 #include "Key_Task.h"
 #include "Key.h"
 #include "HMI.h"
-#include "Chassis.h"
+#include "Chassis_Task.h"
 #include "Motion.h"
 #include "DMMotor.h"
 #include "Motion.h"
 #include "Main_Task.h"
-#include "Gimbal.h"
+#include "Gimbal_Task.h"
 extern float run_enable;
 
 void Key_Task()
@@ -38,8 +38,8 @@ void KEY_KeyClickCallback(KEY* key)
         // gimbal.Lift_Move(gimbal.LIFT_DISTANCE_TOP);
         // gimbal.Extension_Move(gimbal.EXTENSION_DISTANCE_OUT_2);
         // gimbal.Rotate_Move(gimbal.ROTATE_ANGLE_OUT_2);
-        // chassis.control_enable = 0;
-        // gimbal.control_enable = 0;
+        chassis.control_enable = 0;
+        gimbal.control_enable = 0;
     }
     if (key == &key4) {
         chassis.Pos_Rst();

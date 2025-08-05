@@ -1,10 +1,7 @@
 #include "HMI.h"
 #include "LCD.h"
-#include "Gimbal.h"
+#include "Gimbal_Task.h"
 HMI hmi;
-extern uint8_t qrcode_detected;
-extern uint8_t first_round_color1, first_round_color2, first_round_color3;
-extern uint8_t second_round_color1, second_round_color2, second_round_color3;
 
 /**
  * @brief HMI初始化
@@ -129,27 +126,25 @@ void HMI::UartReceive_IDLE_DMA_Callback(UART_HandleTypeDef* huart, uint16_t Size
                     // 连续检测到足够次数的有效数据后才启用
                     if (valid_data_count >= VALID_DATA_THRESHOLD)
                     {
-                        gimbal.camera_data_valid = 1;
-                        gimbal.camera_detect_color = rxdata.u_data1;
-                        gimbal.camera_raw_x_err = rxdata.f_data1;
-                        gimbal.camera_raw_y_err = rxdata.f_data2;
+                        camera_data_valid = 1;
+                        camera_raw_x_err = rxdata.f_data1;
+                        camera_raw_y_err = rxdata.f_data2;
                     }
                     else
                     {
                         // 还没达到阈值，暂时不启用但更新数据
-                        gimbal.camera_data_valid = 0;
-                        gimbal.camera_detect_color = rxdata.u_data1;
-                        gimbal.camera_raw_x_err = rxdata.f_data1;
-                        gimbal.camera_raw_y_err = rxdata.f_data2;
+                        camera_data_valid = 0;
+                        camera_raw_x_err = rxdata.f_data1;
+                        camera_raw_y_err = rxdata.f_data2;
                     }
                 }
                 else
                 {
                     // 无效数据，重置计数器和状态
                     valid_data_count = 0;
-                    gimbal.camera_data_valid = 0;
-                    gimbal.camera_raw_x_err = 0;
-                    gimbal.camera_raw_y_err = 0;
+                    camera_data_valid = 0;
+                    camera_raw_x_err = 0;
+                    camera_raw_y_err = 0;
                 }
             }
         }

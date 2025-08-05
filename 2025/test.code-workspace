@@ -30,7 +30,9 @@
             "iosfwd": "c",
             "ios": "cpp",
             "list": "cpp",
-            "__bit_reference": "c"
+            "__bit_reference": "c",
+            "memory": "cpp",
+            "optional": "cpp"
         },
         "[yaml]": {
             "editor.insertSpaces": true,

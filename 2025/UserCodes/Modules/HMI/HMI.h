@@ -57,6 +57,14 @@ public:
     static constexpr uint8_t DETECT_MODE_MATERIAL = 2;
     static constexpr uint8_t DETECT_MODE_TARGET = 3;
     static constexpr uint8_t DETECT_MODE_BLOCK = 4;
+
+
+    uint8_t qrcode_detected;
+    uint8_t first_round_color1, first_round_color2, first_round_color3;
+    uint8_t second_round_color1, second_round_color2, second_round_color3;
+
+    uint8_t camera_data_valid = 0;
+    float camera_raw_x_err, camera_raw_y_err;
 private:
     uint8_t RxBuffer[HMI_RX_BUFFER_SIZE_MAX];
     UART_HandleTypeDef* huart;

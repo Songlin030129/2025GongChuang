@@ -13,6 +13,8 @@ uint8_t Paths::task_from_start_to_qrcode()
     case 0: //********** 初始化状态 **********
         navi_start_to_qrcode.addPaths(path_start_to_qrcode, ARRAY_SIZE(path_start_to_qrcode));
         NAV_STATE = 1; // 切换到运行状态
+        chassis.pid_pos_x.P = Chassis::NAVIGATION_CONTROL_KP;
+        chassis.pid_pos_y.P = Chassis::NAVIGATION_CONTROL_KP;
         break;
     case 1: //********** 运行状态 **********
 
@@ -37,6 +39,9 @@ uint8_t Paths::task_from_start_to_qrcode()
             ret = 1;
             global_state = {};
             NAV_STATE = 0;
+            chassis.pid_pos_x.P = Chassis::POSITION_CONTROL_KP;
+            chassis.pid_pos_y.P = Chassis::POSITION_CONTROL_KP;
+
         };
         break;
     default:
@@ -55,6 +60,9 @@ uint8_t Paths::task_from_qrcode_to_material()
     case 0: //********** 初始化状态 **********
         navi_qrcode_to_material.addPaths(path_qrcode_to_material, ARRAY_SIZE(path_qrcode_to_material));
         NAV_STATE = 1; // 切换到运行状态
+        chassis.pid_pos_x.P = Chassis::NAVIGATION_CONTROL_KP;
+        chassis.pid_pos_y.P = Chassis::NAVIGATION_CONTROL_KP;
+
         break;
     case 1: //********** 运行状态 **********
 
@@ -78,6 +86,8 @@ uint8_t Paths::task_from_qrcode_to_material()
             ret = 1;
             global_state = {};
             NAV_STATE = 0;
+            chassis.pid_pos_x.P = Chassis::POSITION_CONTROL_KP;
+            chassis.pid_pos_y.P = Chassis::POSITION_CONTROL_KP;
         };
         break;
     default:
@@ -96,6 +106,8 @@ uint8_t Paths::task_from_material_to_process()
     case 0: //********** 初始化状态 **********
         navi_material_to_process.addPaths(path_material_to_process, ARRAY_SIZE(path_material_to_process));
         NAV_STATE = 1; // 切换到运行状态
+        chassis.pid_pos_x.P = Chassis::NAVIGATION_CONTROL_KP;
+        chassis.pid_pos_y.P = Chassis::NAVIGATION_CONTROL_KP;
         break;
     case 1: //********** 运行状态 **********
 
@@ -119,6 +131,8 @@ uint8_t Paths::task_from_material_to_process()
             ret = 1;
             global_state = {};
             NAV_STATE = 0;
+            chassis.pid_pos_x.P = Chassis::POSITION_CONTROL_KP;
+            chassis.pid_pos_y.P = Chassis::POSITION_CONTROL_KP;
         };
         break;
     default:
@@ -138,6 +152,8 @@ uint8_t Paths::task_from_process_to_storage()
 
         navi_process_to_storage.addPaths(path_process_to_storage, ARRAY_SIZE(path_process_to_storage));
         NAV_STATE = 1; // 切换到运行状态
+        chassis.pid_pos_x.P = Chassis::NAVIGATION_CONTROL_KP;
+        chassis.pid_pos_y.P = Chassis::NAVIGATION_CONTROL_KP;
         break;
     case 1: //********** 运行状态 **********
 
@@ -161,6 +177,8 @@ uint8_t Paths::task_from_process_to_storage()
             ret = 1;
             global_state = {};
             NAV_STATE = 0;
+            chassis.pid_pos_x.P = Chassis::POSITION_CONTROL_KP;
+            chassis.pid_pos_y.P = Chassis::POSITION_CONTROL_KP;
         };
         break;
     default:
@@ -179,6 +197,8 @@ uint8_t Paths::task_from_storage_to_material()
     case 0: //********** 初始化状态 **********
         navi_storage_to_material.addPaths(path_storage_to_material, ARRAY_SIZE(path_storage_to_material));
         NAV_STATE = 1; // 切换到运行状态
+        chassis.pid_pos_x.P = Chassis::NAVIGATION_CONTROL_KP;
+        chassis.pid_pos_y.P = Chassis::NAVIGATION_CONTROL_KP;
         break;
     case 1: //********** 运行状态 **********
 
@@ -202,6 +222,8 @@ uint8_t Paths::task_from_storage_to_material()
             ret = 1;
             global_state = {};
             NAV_STATE = 0;
+            chassis.pid_pos_x.P = Chassis::POSITION_CONTROL_KP;
+            chassis.pid_pos_y.P = Chassis::POSITION_CONTROL_KP;
         };
         break;
     default:
@@ -220,6 +242,8 @@ uint8_t Paths::task_from_storage_to_stop()
     case 0: //********** 初始化状态 **********
         navi_storage_to_stop.addPaths(path_storage_to_stop, ARRAY_SIZE(path_storage_to_stop));
         NAV_STATE = 1; // 切换到运行状态
+        chassis.pid_pos_x.P = Chassis::NAVIGATION_CONTROL_KP;
+        chassis.pid_pos_y.P = Chassis::NAVIGATION_CONTROL_KP;
         break;
     case 1: //********** 运行状态 **********
 
@@ -243,6 +267,8 @@ uint8_t Paths::task_from_storage_to_stop()
             ret = 1;
             global_state = {};
             NAV_STATE = 0;
+            chassis.pid_pos_x.P = Chassis::POSITION_CONTROL_KP;
+            chassis.pid_pos_y.P = Chassis::POSITION_CONTROL_KP;
         };
         break;
     default:

@@ -90,6 +90,29 @@ void OPS::Data_Reset()
     HAL_UART_Transmit(huart, (uint8_t*)"ACT0", 5, 1000);
     vTaskDelay(200);
 }
+void OPS::Update_XY(float _x, float _y)
+{
+    // 准备数据包结构
+    struct {
+        char header[4];     // "ACTD" 或其他标识符
+        float x_data;       // X坐标数据
+        float y_data;       // Y坐标数据
+    } data_packet;
+
+    // 填充数据包
+    memcpy(data_packet.header, "ACTD", 4);
+    data_packet.x_data = _x * 1000.0f;  // 转换为毫米
+    data_packet.y_data = -_y * 1000.0f;  // 转换为毫米
+
+    // 发送二进制数据
+    HAL_StatusTypeDef status = HAL_UART_Transmit(huart, (uint8_t*)&data_packet, sizeof(data_packet), 1000);
+    if (status != HAL_OK) {
+        printf("Error: Failed to send float data: %d\r\n", status);
+    }
+
+    vTaskDelay(200);
+
+}
 void OPS::Data_Calibrate()
 {
     HAL_UART_Transmit(huart, (uint8_t*)"ACTR", 5, 1000);
@@ -136,8 +159,8 @@ void OPS::UartReceive_IDLE_DMA_Callback(UART_HandleTypeDef* huart, uint16_t Size
             Yaw_raw = ReadVal.Val[0] * _PI / 180.0f;
             Pitch = ReadVal.Val[1];
             Roll = ReadVal.Val[2];
-            Pos_X = ReadVal.Val[3] / 1000;
-            Pos_Y = -ReadVal.Val[4] / 1000;
+            Pos_X_Raw = ReadVal.Val[3] / 1000.0f;
+            Pos_Y_Raw = -ReadVal.Val[4] / 1000.0f;
             W_Z = ReadVal.Val[5] * _PI / 180.0f;
 
             float temp = Yaw_raw - Yaw_Last;
@@ -161,8 +184,8 @@ void OPS::UartReceive_IDLE_DMA_Callback(UART_HandleTypeDef* huart, uint16_t Size
             float sin_yaw = _sin(yaw_normalized);
 
             // 坐标变换：从传感器位置计算小车中心位置
-            float Car_Center_X = Pos_X - (sensor_offset_x * cos_yaw - sensor_offset_y * sin_yaw);
-            float Car_Center_Y = Pos_Y - (sensor_offset_x * sin_yaw + sensor_offset_y * cos_yaw);
+            float Car_Center_X = Pos_X_Raw - (sensor_offset_x * cos_yaw - sensor_offset_y * sin_yaw);
+            float Car_Center_Y = Pos_Y_Raw - (sensor_offset_x * sin_yaw + sensor_offset_y * cos_yaw);
 
             // 更新位置为小车中心坐标
             Pos_X = Car_Center_X + sensor_offset_x;

@@ -2,11 +2,11 @@
 #define NAVIGATION_H
 #include "common_inc.h"
 #include <vector>
-#include "Chassis.h"
+#include "Chassis_Task.h"
 #include <cmath>
 #define navi_abs(x) ((x) < 0 ? -(x) : (x))
 
-#define MAX_PLAN_VEL 0.7f // 最大直线速度
+#define MAX_PLAN_VEL 0.8f // 最大直线速度
 #define MAX_PLAN_W 3.14f   // 最大旋转速度
 
 #define ACC 1.0f    // 直线段加速度

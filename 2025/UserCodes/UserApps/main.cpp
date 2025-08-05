@@ -2,7 +2,6 @@
 #include "Debug_Task.h"
 #include "Chassis_Task.h"
 #include "Key_Task.h"
-#include "HMI_Task.h"
 #include "Main_Task.h"
 #include "Gimbal_Task.h"
 #include "LED.h"
@@ -10,7 +9,6 @@ static TaskHandle_t Main_Task_Handle;
 static TaskHandle_t KEY_Task_Handle;
 static TaskHandle_t DBG_Task_Handle;
 static TaskHandle_t Chassis_Task_Handle;
-static TaskHandle_t HMI_Task_Handle;
 static TaskHandle_t Gimbal_Task_Handle;
 
 void MainTask(void* argument)
@@ -28,10 +26,6 @@ void DBGTask(void* argument)
 void ChassisTask(void* argument)
 {
     Chassis_Task();
-}
-void HMITask(void* arrgument)
-{
-    HMI_Task();
 }
 void GimbalTask(void* arrgument)
 {
@@ -74,12 +68,6 @@ void Main()
         printf("Gimbal Task Create Success!\r\n");
     else
         printf("Gimbal Task Create Fail\r\n");
-
-    // xReturn = xTaskCreate(HMITask, "HMITask", 512, NULL, osPriorityNormal1, &HMI_Task_Handle);
-// if (xReturn == pdTRUE)
-//     printf("HMI Task Create Success!\r\n");
-// else
-//     printf("HMI Task Create Fail\r\n");
 
 
 }

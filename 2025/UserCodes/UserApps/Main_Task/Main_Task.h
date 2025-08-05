@@ -5,16 +5,18 @@
 // 定义状态枚举
 typedef enum {
     STATE_IDLE = 0,
-    STATE_MOVE_TO_QRCODE = 1,
-    STATE_WAIT_QRCODE = 2,
-    STATE_MOVE_TO_MATERIAL = 3,
-    STATE_LOAD_MATERIAL = 4,
-    STATE_MOVE_TO_PROCESS = 5,
-    STATE_UNLOAD_PROCESS = 6,
-    STATE_LOAD_PROCESS = 7,
-    STATE_MOVE_TO_STORAGE = 8,
-    STATE_UNLOAD_STORAGE = 9,
-    STATE_MOVE_TO_STOP = 10
+    STATE_MOVE_TO_QRCODE,
+    STATE_WAIT_QRCODE,
+    STATE_MOVE_TO_MATERIAL,
+    STATE_LOAD_MATERIAL,
+    STATE_MOVE_TO_PROCESS,
+    STATE_CALIBRATE_PROCESS,
+    STATE_UNLOAD_PROCESS,
+    STATE_LOAD_PROCESS,
+    STATE_MOVE_TO_STORAGE,
+    STATE_CALIBRATE_STORAGE,
+    STATE_UNLOAD_STORAGE,
+    STATE_MOVE_TO_STOP
 } system_state_t;
 
 void Main_Task();
@@ -25,9 +27,11 @@ system_state_t state_wait_qrcode();
 system_state_t state_move_to_material();
 system_state_t state_load_material();
 system_state_t state_move_to_process();
+system_state_t state_calibrate_process();
 system_state_t state_unload_process();
 system_state_t state_load_process();
 system_state_t state_move_to_storage();
+system_state_t state_calibrate_storage();
 system_state_t state_unload_storage();
 system_state_t state_move_to_stop();
 

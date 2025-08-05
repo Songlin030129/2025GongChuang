@@ -24,12 +24,12 @@ public:
     float Yaw, Pitch, Roll, W_Z;
     float Pos_X, Pos_Y, Last_Pos_X, Last_Pos_Y;
     float Vel_X, Vel_Y;
-
+    float Pos_X_Raw, Pos_Y_Raw;
     float Yaw_raw;
     float Yaw_Last;
 
     void Data_Reset();
-
+    void Update_XY(float _x, float _y);
     void Data_Calibrate();
 
     //   private:

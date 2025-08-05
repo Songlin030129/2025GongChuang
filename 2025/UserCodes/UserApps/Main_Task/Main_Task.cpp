@@ -4,16 +4,14 @@
 #include "HMI.h"
 #include "Motion.h"
 #include "LCD.h"
-#include "Gimbal.h"
+#include "Gimbal_Task.h"
 system_state_t global_state = STATE_IDLE;
 system_state_t last_state;
 float run_enable = 0;
 uint8_t run_round = 1;
-uint8_t qrcode_detected = 0;
-uint8_t first_round_color1, first_round_color2, first_round_color3;
-uint8_t second_round_color1, second_round_color2, second_round_color3;
-uint8_t colors[] = { first_round_color1, first_round_color2, first_round_color3 };
-
+uint8_t colors[3] = { 0 };
+uint32_t start_tick, stop_tick;
+uint8_t put_calibrate = 0;
 // 状态函数指针数组
 typedef system_state_t(*state_func_t)();
 state_func_t state_functions[] = {
@@ -23,9 +21,11 @@ state_func_t state_functions[] = {
     state_move_to_material,
     state_load_material,
     state_move_to_process,
+    state_calibrate_process,
     state_unload_process,
     state_load_process,
     state_move_to_storage,
+    state_calibrate_storage,
     state_unload_storage,
     state_move_to_stop
 };
@@ -35,7 +35,6 @@ uint8_t jaw_finished = 0;
 uint8_t lift_finished = 0;
 uint8_t rotate_finished = 0;
 uint8_t extension_finished = 0;
-uint8_t test_enable = 0;
 void Main_Task()
 {
     hmi.Init(&huart1);
@@ -63,9 +62,9 @@ system_state_t state_idle() {
     if (run_enable >= 0.5f) {
         run_enable = 0;
         gimbal.Rotate_Move(gimbal.ROTATE_ANGLE_OUT_2);
-        gimbal.Extension_Move(gimbal.EXTENSION_DISTANCE_OUT_MATERIAL);
         printf("START!!!\r\n");
         printf("moving to qrcode...\r\n");
+        start_tick = HAL_GetTick();
         return STATE_MOVE_TO_QRCODE;
     }
     return STATE_IDLE;
@@ -83,14 +82,13 @@ system_state_t state_move_to_qrcode() {
 }
 //等待识别二维码
 system_state_t state_wait_qrcode() {
-    if (qrcode_detected == 1) {
+    if (hmi.qrcode_detected == 1) {
 
         printf("moving to material...\r\n");
 
-        colors[0] = first_round_color1;
-        colors[1] = first_round_color2;
-        colors[2] = first_round_color3;
-        qrcode_detected = 0;
+        colors[0] = hmi.first_round_color1;
+        colors[1] = hmi.first_round_color2;
+        colors[2] = hmi.first_round_color3;
         return STATE_MOVE_TO_MATERIAL;
     }
     return STATE_WAIT_QRCODE;
@@ -130,6 +128,7 @@ system_state_t state_load_material() {
     static uint8_t temp_state = 0;
     static uint8_t material_index = 1;
     if (temp_state == 0) {
+        gimbal.CAMERA_CALIBRATE_THRESHOLD = 30.0f;
         hmi.Set_Detect_Mode(HMI::DETECT_MODE_MATERIAL, colors[material_index - 1]);
         vTaskDelay(100);
         temp_state = 1;
@@ -137,9 +136,9 @@ system_state_t state_load_material() {
     else if (temp_state == 1) {
         uint8_t temp = 0;
         if (material_index != 3)
-            temp = motion.load_from_material(material_index, 0);
-        else if (material_index == 3)
             temp = motion.load_from_material(material_index, 1);
+        else if (material_index == 3)
+            temp = motion.load_from_material(material_index, 0);
         if (temp == 1) {
             printf("finish load:%d...\r\n", colors[material_index - 1]);
             if (material_index < 3) {
@@ -150,6 +149,7 @@ system_state_t state_load_material() {
                 printf("finish all loads,moving to process...\r\n");
                 material_index = 1; // 重置
                 temp_state = 0;
+                gimbal.CAMERA_CALIBRATE_THRESHOLD = 10.0f;
                 return STATE_MOVE_TO_PROCESS;
             }
         }
@@ -158,12 +158,50 @@ system_state_t state_load_material() {
 }
 //移动到加工区
 system_state_t state_move_to_process() {
-    uint8_t temp = paths.task_from_material_to_process();
-    if (temp == 1) {
-        printf("unloading in process area...\r\n");
-        return STATE_UNLOAD_PROCESS;
+    static uint8_t temp_state = 0;
+    if (temp_state == 0) {
+        uint8_t temp = paths.task_from_material_to_process();
+        if (temp == 1) {
+            printf("get block:%d...\r\n", colors[0]);
+            temp_state = 1;
+        }
+    }
+    else if (temp_state == 1) {
+        uint8_t temp = motion.get_from_car(1, 2);
+        if (temp == 1) {
+            temp_state = 0;
+            printf("calibrating in process area...\r\n");
+            return STATE_CALIBRATE_PROCESS;
+        }
     }
     return STATE_MOVE_TO_PROCESS;
+}
+//加工区校准底盘
+system_state_t state_calibrate_process()
+{
+    static uint8_t temp_state = 0;
+    if (temp_state == 0) {
+        temp_state = 1;
+        gimbal.Rotate_Move(gimbal.ROTATE_ANGLE_OUT_2);
+        gimbal.Extension_Move(gimbal.EXTENSION_DISTANCE_OUT_2);
+    }
+    else if (temp_state == 1) {
+        if (gimbal.All_Move_Finished()) {
+            hmi.Set_Detect_Mode(HMI::DETECT_MODE_TARGET, 2);
+            vTaskDelay(100);
+            chassis.Set_ControlMode(Chassis::CHASSIS_CAMERA_CONTROL);
+            temp_state = 2;
+        }
+    }
+    else if (temp_state == 2) {
+        if (chassis.Camera_Calibrated()) {
+            chassis.Set_ControlMode(Chassis::CHASSIS_POSITION_CONTROL);
+            printf("calibrate finished, unloading in process area...\r\n");
+            temp_state = 0;
+            return STATE_UNLOAD_PROCESS;
+        }
+    }
+    return STATE_CALIBRATE_PROCESS;
 }
 //加工区卸货
 system_state_t state_unload_process()
@@ -176,11 +214,11 @@ system_state_t state_unload_process()
         temp_state = 1;
     }
     else if (temp_state == 1) {
-        uint8_t temp = motion.unload_to_ground(process_index, colors[process_index - 1]);
+        uint8_t temp = motion.unload_to_ground(colors[process_index - 1], put_calibrate, 0);
         if (temp == 1) {
             printf("unload block:%d...\r\n", colors[process_index - 1]);
             if (process_index < 3) {
-                temp_state = 0;
+                temp_state = 2;
                 process_index++;
             }
             else {
@@ -189,6 +227,12 @@ system_state_t state_unload_process()
                 printf("finish all unload,start loading...\r\n");
                 return STATE_LOAD_PROCESS;
             }
+        }
+    }
+    else if (temp_state == 2) {
+        uint8_t temp = motion.get_from_car(process_index, colors[process_index - 1]);
+        if (temp == 1) {
+            temp_state = 0;
         }
     }
     return STATE_UNLOAD_PROCESS;
@@ -218,6 +262,12 @@ system_state_t state_load_process()
             else {
                 temp_state = 0;
                 process_index = 1;
+                gimbal.ROTATE_ANGLE_OUT_1 = Gimbal::DEFAULT_ROTATE_ANGLE_OUT_1;
+                gimbal.EXTENSION_DISTANCE_OUT_1 = Gimbal::DEFAULT_EXTENSION_DISTANCE_OUT_1;
+                gimbal.ROTATE_ANGLE_OUT_2 = Gimbal::DEFAULT_ROTATE_ANGLE_OUT_2;
+                gimbal.EXTENSION_DISTANCE_OUT_2 = Gimbal::DEFAULT_EXTENSION_DISTANCE_OUT_2;
+                gimbal.ROTATE_ANGLE_OUT_3 = Gimbal::DEFAULT_ROTATE_ANGLE_OUT_3;
+                gimbal.EXTENSION_DISTANCE_OUT_3 = Gimbal::DEFAULT_EXTENSION_DISTANCE_OUT_3;
                 printf("finished all loads,moving to storage area...\r\n");
                 return STATE_MOVE_TO_STORAGE;
             }
@@ -228,12 +278,57 @@ system_state_t state_load_process()
 //移动到暂存区
 system_state_t state_move_to_storage()
 {
-    uint8_t temp = paths.task_from_process_to_storage();
-    if (temp == 1) {
-        printf("unloading in storage area...\r\n");
-        return STATE_UNLOAD_STORAGE;
+    static uint8_t temp_state = 0;
+    if (temp_state == 0) {
+        uint8_t temp = paths.task_from_process_to_storage();
+        if (temp == 1) {
+            printf("get block:%d...\r\n", colors[0]);
+            temp_state = 1;
+        }
+    }
+    else if (temp_state == 1) {
+        uint8_t temp = motion.get_from_car(1, 2);
+        if (temp == 1) {
+            temp_state = 0;
+            printf("calibrating in storage area...\r\n");
+            return STATE_CALIBRATE_STORAGE;
+        }
     }
     return STATE_MOVE_TO_STORAGE;
+}
+//暂存区校准底盘
+system_state_t state_calibrate_storage()
+{
+    static uint8_t temp_state = 0;
+    if (temp_state == 0) {
+        temp_state = 1;
+        gimbal.Rotate_Move(gimbal.ROTATE_ANGLE_OUT_2);
+        gimbal.Extension_Move(gimbal.EXTENSION_DISTANCE_OUT_2);
+    }
+    else if (temp_state == 1) {
+        if (gimbal.All_Move_Finished()) {
+            if (run_round == 1) {
+                hmi.Set_Detect_Mode(HMI::DETECT_MODE_TARGET, 2);
+                vTaskDelay(100);
+                chassis.Set_ControlMode(Chassis::CHASSIS_CAMERA_CONTROL);
+            }
+            else if (run_round == 2) {
+                hmi.Set_Detect_Mode(HMI::DETECT_MODE_BLOCK, 2);
+                vTaskDelay(100);
+                chassis.Set_ControlMode(Chassis::CHASSIS_CAMERA_CONTROL);
+            }
+            temp_state = 2;
+        }
+    }
+    else if (temp_state == 2) {
+        if (chassis.Camera_Calibrated()) {
+            chassis.Set_ControlMode(Chassis::CHASSIS_POSITION_CONTROL);
+            printf("calibrate finished, unloading in storage area...\r\n");
+            temp_state = 0;
+            return STATE_UNLOAD_STORAGE;
+        }
+    }
+    return STATE_CALIBRATE_STORAGE;
 }
 //暂存区卸货
 system_state_t state_unload_storage()
@@ -250,24 +345,35 @@ system_state_t state_unload_storage()
     }
     else if (temp_state == 1) {
         uint8_t temp = 0;
-        if (run_round == 1)
-            temp = motion.unload_to_ground(storage_index, colors[storage_index - 1]);
+        if (run_round == 1) {
+            if (storage_index < 3)
+                temp = motion.unload_to_ground(colors[storage_index - 1], put_calibrate, 0);
+            else
+                temp = motion.unload_to_ground(colors[storage_index - 1], put_calibrate, 1);
+        }
         else if (run_round == 2)
-            temp = motion.unload_to_second(storage_index, colors[storage_index - 1]);
+            temp = motion.unload_to_second(colors[storage_index - 1], put_calibrate);
         if (temp == 1) {
             printf("unload block:%d...\r\n", colors[storage_index - 1]);
             if (storage_index < 3) {
-                temp_state = 0;
+                temp_state = 2;
                 storage_index++;
             }
             else {
+                gimbal.ROTATE_ANGLE_OUT_1 = Gimbal::DEFAULT_ROTATE_ANGLE_OUT_1;
+                gimbal.EXTENSION_DISTANCE_OUT_1 = Gimbal::DEFAULT_EXTENSION_DISTANCE_OUT_1;
+                gimbal.ROTATE_ANGLE_OUT_2 = Gimbal::DEFAULT_ROTATE_ANGLE_OUT_2;
+                gimbal.EXTENSION_DISTANCE_OUT_2 = Gimbal::DEFAULT_EXTENSION_DISTANCE_OUT_2;
+                gimbal.ROTATE_ANGLE_OUT_3 = Gimbal::DEFAULT_ROTATE_ANGLE_OUT_3;
+                gimbal.EXTENSION_DISTANCE_OUT_3 = Gimbal::DEFAULT_EXTENSION_DISTANCE_OUT_3;
+
                 temp_state = 0;
                 storage_index = 1;
                 if (run_round == 1) {
                     run_round = 2;
-                    colors[0] = second_round_color1;
-                    colors[1] = second_round_color2;
-                    colors[2] = second_round_color3;
+                    colors[0] = hmi.second_round_color1;
+                    colors[1] = hmi.second_round_color2;
+                    colors[2] = hmi.second_round_color3;
                     printf("finish round 1, moving to material area...\r\n");
                     return STATE_MOVE_TO_MATERIAL;
                 }
@@ -280,6 +386,12 @@ system_state_t state_unload_storage()
             }
         }
     }
+    else if (temp_state == 2) {
+        uint8_t temp = motion.get_from_car(storage_index, colors[storage_index - 1]);
+        if (temp == 1) {
+            temp_state = 0;
+        }
+    }
     return STATE_UNLOAD_STORAGE;
 }
 //移动到停止区
@@ -288,6 +400,8 @@ system_state_t state_move_to_stop()
     uint8_t temp = paths.task_from_storage_to_stop();
     if (temp == 1) {
         printf("FINISHED!!!\r\n");
+        stop_tick = HAL_GetTick();
+        printf("Used Time:%f\r\n", (stop_tick - start_tick) / 1000.0f);
         return STATE_IDLE;
     }
     return STATE_MOVE_TO_STOP;

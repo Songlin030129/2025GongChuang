@@ -291,7 +291,6 @@
           "UserCodes/Modules",
           "UserCodes/UserApps",
           "UserCodes/Modules/Algorithm",
-          "UserCodes/Modules/Chassis",
           "UserCodes/Modules/HMI",
           "UserCodes/Modules/KEY",
           "UserCodes/Modules/LCD",
@@ -304,10 +303,8 @@
           "UserCodes/UserApps/Chassis_Task",
           "UserCodes/UserApps/Debug_Task",
           "UserCodes/UserApps/Key_Task",
-          "UserCodes/Modules/Gimbal",
           "UserCodes/UserApps/Gimbal_Task",
-          "UserCodes/UserApps/Main_Task",
-          "UserCodes/UserApps/HMI_Task"
+          "UserCodes/UserApps/Main_Task"
         ],
         "libList": [],
         "defineList": [
