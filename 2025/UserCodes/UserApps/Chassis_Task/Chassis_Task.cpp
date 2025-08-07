@@ -118,6 +118,7 @@ void Chassis::Set_ControlMode(chassis_control_mode_e _mode)
         LPF_ERR_X.reset();
         LPF_ERR_Y.reset();
         hmi.camera_data_valid = 0;
+        hmi.valid_data_count = 0;
         pid_cam_x.reset();
         pid_cam_y.reset();
         pid_pos_x.Enable = 0;

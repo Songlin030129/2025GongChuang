@@ -260,7 +260,7 @@ uint8_t Motion::load_from_ground(uint8_t _loadDir, uint8_t _unloadDir, uint8_t _
     return ret;
 }
 
-uint8_t Motion::get_from_car(uint8_t _loadDir, uint8_t _unloadDir)
+uint8_t Motion::get_from_car(uint8_t _loadDir, uint8_t _unloadDir, uint8_t _is_lift_down)
 {
     uint8_t ret = 0;
     static enum {
@@ -271,6 +271,7 @@ uint8_t Motion::get_from_car(uint8_t _loadDir, uint8_t _unloadDir)
         get_jiazhua_close_state,
         get_huagui_up_state,
         get_yuntai_out_state,
+        get_huagui_down2_state,
     } state = get_stop_state;
     if (state == get_stop_state) {
 
@@ -333,14 +334,26 @@ uint8_t Motion::get_from_car(uint8_t _loadDir, uint8_t _unloadDir)
     }
     else if (state == get_yuntai_out_state) {
         if (gimbal.All_Move_Finished()) {
-            state = get_stop_state;
+            if (_is_lift_down) {
+                state = get_huagui_down2_state;
+                gimbal.Lift_Move(gimbal.LIFT_DISTANCE_CALIBRATE);
+            }
+            else {
+                ret = 1;
+                state = get_stop_state;
+            }
+        }
+    }
+    else if (state == get_huagui_down2_state) {
+        if (gimbal.All_Move_Finished()) {
             ret = 1;
+            state = get_stop_state;
         }
     }
     return ret;
 }
 
-uint8_t Motion::unload_to_ground(uint8_t _unloadDir, uint8_t _is_calibrate, uint8_t _is_rotate_in)
+uint8_t Motion::unload_to_ground(uint8_t _unloadDir, uint8_t _is_calibrate)
 {
     uint8_t ret = 0;
     static enum {
@@ -353,7 +366,7 @@ uint8_t Motion::unload_to_ground(uint8_t _unloadDir, uint8_t _is_calibrate, uint
         unload_yuntai_in_state,
     } state = unload_stop_state;
     if (state == unload_stop_state) {
-        gimbal.Lift_Move(gimbal.LIFT_DISTANCE_TOP);
+        // gimbal.Lift_Move(gimbal.LIFT_DISTANCE_TOP);
         if (_unloadDir == 1) {
             gimbal.Rotate_Move(gimbal.ROTATE_ANGLE_OUT_1);
             gimbal.Extension_Move(gimbal.EXTENSION_DISTANCE_OUT_1);
@@ -382,6 +395,7 @@ uint8_t Motion::unload_to_ground(uint8_t _unloadDir, uint8_t _is_calibrate, uint
     }
     else if (state == unload_calibrate_state) {
         if (gimbal.Camera_Calibrated()) {
+            vTaskDelay(100);
             printf("calibrate finished, angle:%f, distance:%f\r\n", gimbal.rotate_angle, gimbal.extension_distance);
             if (_unloadDir == 1) {
                 gimbal.ROTATE_ANGLE_OUT_1 = gimbal.rotate_angle;
@@ -404,6 +418,7 @@ uint8_t Motion::unload_to_ground(uint8_t _unloadDir, uint8_t _is_calibrate, uint
     else if (state == unload_huagui_down_state) {
         if (gimbal.All_Move_Finished()) {
             state = unload_jiazhua_open_state;
+            vTaskDelay(100);
             gimbal.Jaw_Move(gimbal.JAW_ANGLE_OPEN);
         }
     }
@@ -414,18 +429,6 @@ uint8_t Motion::unload_to_ground(uint8_t _unloadDir, uint8_t _is_calibrate, uint
         }
     }
     else if (state == unload_huagui_up_state) {
-        if (gimbal.All_Move_Finished()) {
-            if (_is_rotate_in) {
-                state = unload_yuntai_in_state;
-                gimbal.Rotate_Move(gimbal.ROTATE_ANGLE_IN_1);
-            }
-            else {
-                ret = 1;
-                state = unload_stop_state;
-            }
-        }
-    }
-    else if (state == unload_yuntai_in_state) {
         if (gimbal.All_Move_Finished()) {
             ret = 1;
             state = unload_stop_state;

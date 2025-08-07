@@ -6,10 +6,10 @@
 #include <cmath>
 #define navi_abs(x) ((x) < 0 ? -(x) : (x))
 
-#define MAX_PLAN_VEL 0.8f // 最大直线速度
+#define MAX_PLAN_VEL 0.7f // 最大直线速度
 #define MAX_PLAN_W 3.14f   // 最大旋转速度
 
-#define ACC 1.0f    // 直线段加速度
+#define ACC 0.7f    // 直线段加速度
 #define W_ACC 6.28f // 自转段角加速度
 
 #define Round_Error 0.001f  // 圆整误差 请勿改小，过小会导致程序出错

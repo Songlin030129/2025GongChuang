@@ -66,7 +66,7 @@ public:
     PIDController pid_cam_x{ 0.001f, 0.0f, 0.0f, 0.0f, 0.1f, 0.0f };
     PIDController pid_cam_y{ 0.001f, 0.0f, 0.0f, 0.0f, 0.1f, 0.0f };
 
-    float CAMERA_CALIBRATE_THRESHOLD = 10.0f;
+    float CAMERA_CALIBRATE_THRESHOLD = 20.0f;
     uint8_t Camera_Calibrated();
 
     uint32_t last_tick;

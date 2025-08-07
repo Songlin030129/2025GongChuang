@@ -11,7 +11,7 @@ float run_enable = 0;
 uint8_t run_round = 1;
 uint8_t colors[3] = { 0 };
 uint32_t start_tick, stop_tick;
-uint8_t put_calibrate = 0;
+uint8_t put_calibrate = 1;
 // 状态函数指针数组
 typedef system_state_t(*state_func_t)();
 state_func_t state_functions[] = {
@@ -128,7 +128,9 @@ system_state_t state_load_material() {
     static uint8_t temp_state = 0;
     static uint8_t material_index = 1;
     if (temp_state == 0) {
-        gimbal.CAMERA_CALIBRATE_THRESHOLD = 30.0f;
+        gimbal.CAMERA_CALIBRATE_X_THRESHOLD = 30.0f;
+        gimbal.PID_CAM_X.P = 0.0005f;
+        gimbal.PID_CAM_X.DeadZone = 40.0f;
         hmi.Set_Detect_Mode(HMI::DETECT_MODE_MATERIAL, colors[material_index - 1]);
         vTaskDelay(100);
         temp_state = 1;
@@ -147,9 +149,12 @@ system_state_t state_load_material() {
             }
             else {
                 printf("finish all loads,moving to process...\r\n");
+                gimbal.Rotate_Move(gimbal.ROTATE_ANGLE_IN_1);
                 material_index = 1; // 重置
                 temp_state = 0;
-                gimbal.CAMERA_CALIBRATE_THRESHOLD = 10.0f;
+                gimbal.CAMERA_CALIBRATE_X_THRESHOLD = 15.0f;
+                gimbal.PID_CAM_X.P = 0.0006f;
+                gimbal.PID_CAM_X.DeadZone = 40.0f;
                 return STATE_MOVE_TO_PROCESS;
             }
         }
@@ -167,7 +172,7 @@ system_state_t state_move_to_process() {
         }
     }
     else if (temp_state == 1) {
-        uint8_t temp = motion.get_from_car(1, 2);
+        uint8_t temp = motion.get_from_car(1, 2, 1);
         if (temp == 1) {
             temp_state = 0;
             printf("calibrating in process area...\r\n");
@@ -214,7 +219,7 @@ system_state_t state_unload_process()
         temp_state = 1;
     }
     else if (temp_state == 1) {
-        uint8_t temp = motion.unload_to_ground(colors[process_index - 1], put_calibrate, 0);
+        uint8_t temp = motion.unload_to_ground(colors[process_index - 1], put_calibrate);
         if (temp == 1) {
             printf("unload block:%d...\r\n", colors[process_index - 1]);
             if (process_index < 3) {
@@ -230,7 +235,7 @@ system_state_t state_unload_process()
         }
     }
     else if (temp_state == 2) {
-        uint8_t temp = motion.get_from_car(process_index, colors[process_index - 1]);
+        uint8_t temp = motion.get_from_car(process_index, colors[process_index - 1], 1);
         if (temp == 1) {
             temp_state = 0;
         }
@@ -262,6 +267,7 @@ system_state_t state_load_process()
             else {
                 temp_state = 0;
                 process_index = 1;
+                gimbal.Rotate_Move(gimbal.ROTATE_ANGLE_IN_1);
                 gimbal.ROTATE_ANGLE_OUT_1 = Gimbal::DEFAULT_ROTATE_ANGLE_OUT_1;
                 gimbal.EXTENSION_DISTANCE_OUT_1 = Gimbal::DEFAULT_EXTENSION_DISTANCE_OUT_1;
                 gimbal.ROTATE_ANGLE_OUT_2 = Gimbal::DEFAULT_ROTATE_ANGLE_OUT_2;
@@ -287,7 +293,11 @@ system_state_t state_move_to_storage()
         }
     }
     else if (temp_state == 1) {
-        uint8_t temp = motion.get_from_car(1, 2);
+        uint8_t temp = 0;
+        if (run_round == 1)
+            temp = motion.get_from_car(1, 2, 1);
+        else if (run_round == 2)
+            temp = motion.get_from_car(1, 2, 0);
         if (temp == 1) {
             temp_state = 0;
             printf("calibrating in storage area...\r\n");
@@ -347,12 +357,12 @@ system_state_t state_unload_storage()
         uint8_t temp = 0;
         if (run_round == 1) {
             if (storage_index < 3)
-                temp = motion.unload_to_ground(colors[storage_index - 1], put_calibrate, 0);
+                temp = motion.unload_to_ground(colors[storage_index - 1], put_calibrate);
             else
-                temp = motion.unload_to_ground(colors[storage_index - 1], put_calibrate, 1);
+                temp = motion.unload_to_ground(colors[storage_index - 1], put_calibrate);
         }
         else if (run_round == 2)
-            temp = motion.unload_to_second(colors[storage_index - 1], put_calibrate);
+            temp = motion.unload_to_second(colors[storage_index - 1], 0);
         if (temp == 1) {
             printf("unload block:%d...\r\n", colors[storage_index - 1]);
             if (storage_index < 3) {
@@ -366,7 +376,6 @@ system_state_t state_unload_storage()
                 gimbal.EXTENSION_DISTANCE_OUT_2 = Gimbal::DEFAULT_EXTENSION_DISTANCE_OUT_2;
                 gimbal.ROTATE_ANGLE_OUT_3 = Gimbal::DEFAULT_ROTATE_ANGLE_OUT_3;
                 gimbal.EXTENSION_DISTANCE_OUT_3 = Gimbal::DEFAULT_EXTENSION_DISTANCE_OUT_3;
-
                 temp_state = 0;
                 storage_index = 1;
                 if (run_round == 1) {
@@ -374,6 +383,8 @@ system_state_t state_unload_storage()
                     colors[0] = hmi.second_round_color1;
                     colors[1] = hmi.second_round_color2;
                     colors[2] = hmi.second_round_color3;
+                    gimbal.Rotate_Move(gimbal.ROTATE_ANGLE_OUT_2);
+                    gimbal.Extension_Move(gimbal.EXTENSION_DISTANCE_OUT_MATERIAL_1);
                     printf("finish round 1, moving to material area...\r\n");
                     return STATE_MOVE_TO_MATERIAL;
                 }
@@ -387,7 +398,11 @@ system_state_t state_unload_storage()
         }
     }
     else if (temp_state == 2) {
-        uint8_t temp = motion.get_from_car(storage_index, colors[storage_index - 1]);
+        uint8_t temp = 0;
+        if (run_round == 1)
+            temp = motion.get_from_car(storage_index, colors[storage_index - 1], 1);
+        else if (run_round == 2)
+            temp = motion.get_from_car(storage_index, colors[storage_index - 1], 0);
         if (temp == 1) {
             temp_state = 0;
         }

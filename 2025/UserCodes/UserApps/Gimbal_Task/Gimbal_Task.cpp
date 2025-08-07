@@ -28,6 +28,7 @@ void Gimbal::Init(CAN_HandleTypeDef* _hcan)
 
     tar_rotate_angle = ROTATE_ANGLE_IN_2;
     tar_extension_distance = EXTENSION_DISTANCE_IN_2;
+    tar_lift_height = LIFT_DISTANCE_TOP;
 
     servo_protocol.Init(&huart4);
     servo_jaw.init(3, &servo_protocol);
@@ -56,7 +57,7 @@ void Gimbal::loop_control()
     tar_lift_height = _constrain(tar_lift_height, 0.0f, 0.2f);
 
     rotate_angle = dm_gimbal.Position;
-    rotate_omega = LPF_OMEGA((rotate_angle - last_rotate_angle) / dt);
+    rotate_omega = ((rotate_angle - last_rotate_angle) / dt);
     last_rotate_angle = rotate_angle;
     extension_distance = zdt_hori.Position / 9000.0f;
     lift_height = zdt_vert.Position / 9000.0f;
@@ -166,7 +167,7 @@ void Gimbal::loop_control()
             tar_extension_distance = extension_distance;
 
             float tar_vel_y = PID_CAM_Y.Cal(-camera_y_err, 0.0f);
-            if (extension_distance <= 0.005f) {
+            if (extension_distance <= 0.0f) {
                 if (tar_vel_y <= 0) {
                     tar_vel_y = 0;
                     flag_out_of_range = 1;
@@ -216,6 +217,8 @@ void Gimbal::Set_ControlMode(gimbal_control_mode_e _mode)
         PID_Distance.reset();
         trap_extension.reset();
         trap_rotate.reset();
+        hmi.camera_data_valid = 0;
+        hmi.valid_data_count = 0;
         rotate_move_state = 0;
         extension_move_state = 0;
         PID_Angle.Enable = 1;
@@ -234,6 +237,7 @@ void Gimbal::Set_ControlMode(gimbal_control_mode_e _mode)
         LPF_ERR_X.reset();
         LPF_ERR_Y.reset();
         hmi.camera_data_valid = 0;
+        hmi.valid_data_count = 0;
         PID_CAM_Omega.reset();
         PID_CAM_X.reset();
         PID_CAM_Y.reset();
@@ -250,7 +254,7 @@ uint8_t Gimbal::Camera_Calibrated()
 {
     static uint8_t continuous_count = 0;
 
-    if (_ABS(camera_x_err) <= CAMERA_CALIBRATE_THRESHOLD && _ABS(camera_y_err) <= CAMERA_CALIBRATE_THRESHOLD
+    if (_ABS(camera_x_err) <= CAMERA_CALIBRATE_X_THRESHOLD && _ABS(camera_y_err) <= CAMERA_CALIBRATE_Y_THRESHOLD
         && hmi.camera_data_valid == 1)
     {
         continuous_count++;

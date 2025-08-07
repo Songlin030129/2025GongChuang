@@ -38,46 +38,47 @@ float PIDController::Cal(float error, float ff)
         // Discrete implementations
         // proportional part
         // u_p  = P *e(k)
-        float proportional = P * error;
+        float proportional = P * Error;
         // Tustin transform of the integral part
         // u_ik = u_ik_1  + I*Ts/2*(ek + ek_1)
-        float integral = integral_prev + I * Ts * 0.5f * (error + error_prev);
+        float integral = integral_prev + I * Ts * 0.5f * (Error + error_prev);
         // antiwindup - limit the output
         if (output_limit > 0)
             integral = _constrain(integral, -output_limit, output_limit);
         // Discrete derivation
         // u_dk = D(ek - ek_1)/Ts
-        float derivative = D * (error - error_prev) / Ts;
+        float derivative = D * (Error - error_prev) / Ts;
 
         // sum all the components
-        float output = proportional + integral + derivative + ff;
+        output_value = proportional + integral + derivative + ff;
         // antiwindup - limit the output variable
         if (output_limit > 0)
-            output = _constrain(output, -output_limit, output_limit);
+            output_value = _constrain(output_value, -output_limit, output_limit);
 
         // if output ramp defined
         if (output_ramp > 0)
         {
             // limit the acceleration by ramping the output
-            float output_rate = (output - output_prev) / Ts;
+            float output_rate = (output_value - output_prev) / Ts;
             if (output_rate > output_ramp)
-                output = output_prev + output_ramp * Ts;
+                output_value = output_prev + output_ramp * Ts;
             else if (output_rate < -output_ramp)
-                output = output_prev - output_ramp * Ts;
+                output_value = output_prev - output_ramp * Ts;
         }
         // saving for the next pass
         integral_prev = integral;
-        output_prev = output;
-        error_prev = error;
-        output_value = output;
-        return output;
+        output_prev = output_value;
+        error_prev = Error;
+        return output_value;
     }
     else
     {
+        Error = 0;
         error_prev = 0;
         output_prev = 0;
         integral_prev = 0;
         output_value = 0;
+
         return 0;
     }
 }
@@ -87,4 +88,5 @@ void PIDController::reset()
     integral_prev = 0.0f;
     output_prev = 0.0f;
     error_prev = 0.0f;
+    output_value = 0.0f;
 }

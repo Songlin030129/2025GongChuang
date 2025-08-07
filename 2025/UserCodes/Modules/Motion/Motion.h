@@ -12,9 +12,9 @@ public:
 
     uint8_t load_from_ground(uint8_t _loadDir, uint8_t _unloadDir, uint8_t _is_rotate_out, uint8_t _rotate_out_dir, uint8_t _is_calibrate);
 
-    uint8_t get_from_car(uint8_t _loadDir, uint8_t _unloadDir);
+    uint8_t get_from_car(uint8_t _loadDir, uint8_t _unloadDir, uint8_t _is_lift_down);
 
-    uint8_t unload_to_ground(uint8_t _unloadDir, uint8_t _is_calibrate, uint8_t _is_rotate_in);
+    uint8_t unload_to_ground(uint8_t _unloadDir, uint8_t _is_calibrate);
 
     uint8_t unload_to_second(uint8_t _unloadDir, uint8_t _is_calibrate);
 
